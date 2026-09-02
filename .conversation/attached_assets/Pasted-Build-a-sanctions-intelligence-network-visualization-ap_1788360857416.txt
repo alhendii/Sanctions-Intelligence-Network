@@ -1,0 +1,40 @@
+Build a sanctions intelligence & network visualization app for OSINT/journalism research.
+
+CORE FUNCTIONALITY:
+1. Entity database of sanctioned individuals and companies, sourced from OpenSanctions.org API 
+   (free, structured, already aggregates OFAC, EU, UN, UK sanctions lists with relationship data).
+2. Search bar with fuzzy matching — users can search a name and get exact + likely matches 
+   (sanctioned names have many spelling variants).
+3. Entity detail page showing: name, aliases, DOB/founding date, nationality/country, 
+   sanction program, date listed, and source citation link.
+4. Interactive network graph (use react-force-graph or vis-network.js) showing an entity 
+   and its connections — ownership, directorship, family, shared addresses. 
+   - Start collapsed on the searched entity, expand on click (don't render everything at once).
+   - Style edges differently by relationship type and confidence level (solid = confirmed, 
+     dashed = reported/suspected).
+   - Clicking an edge shows the source citation for that relationship.
+5. "Path finder" — let a user search two entities and highlight the shortest connection 
+   path between them.
+6. Dashboard homepage with basic stats: total entities tracked, breakdown by sanctioning body, 
+   recently added/delisted entities.
+
+DATA:
+- Use the OpenSanctions API (https://www.opensanctions.org/docs/api/) as the primary data source 
+  — it already includes relationship/ownership edges, saving major scraping work.
+- Store entities and relationships in Postgres with two tables: `entities` and `edges` 
+  (source_id, target_id, relationship_type, confidence, source_citation).
+- Cache API responses locally so we're not hitting rate limits on every search.
+
+TECH:
+- [React frontend / whatever your existing stack is]
+- Postgres for storage
+- Keep it mobile-responsive
+
+PRIORITIES FOR THIS BUILD:
+- Get search + entity detail pages working first
+- Then network graph for a single entity
+- Then path-finding between two entities
+- Polish (dashboard stats, dark mode) last
+
+Do NOT fabricate placeholder sanctions data — only pull real records from OpenSanctions API. 
+If the API doesn't have a relationship for two entities, don't invent one.

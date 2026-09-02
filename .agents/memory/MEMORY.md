@@ -1,0 +1,1 @@
+- [OpenSanctions source and validation](opensanctions-and-codegen.md) — server-side ApiKey auth is required; preserve truthful setup state and the current Zod 3 codegen workaround.

@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: intelligence
+    description: Sanctions intelligence operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,130 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [intelligence]
+      summary: Get sanctions intelligence dashboard summary
+      responses:
+        "200":
+          description: Current summary and recent records
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+  /sources:
+    get:
+      operationId: getSources
+      tags: [intelligence]
+      summary: List supported public intelligence sources
+      responses:
+        "200":
+          description: Source registry
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FeedSource"
+  /entities/search:
+    get:
+      operationId: searchEntities
+      tags: [intelligence]
+      summary: Search sanctioned entities
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 2
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: number
+            minimum: 1
+            maximum: 25
+            default: 10
+      responses:
+        "200":
+          description: Search matches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EntitySearchResult"
+  /entities/{id}:
+    get:
+      operationId: getEntity
+      tags: [intelligence]
+      summary: Get a sanctioned entity dossier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Entity dossier
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Entity"
+        "404":
+          description: Entity not found
+  /entities/{id}/network:
+    get:
+      operationId: getEntityNetwork
+      tags: [intelligence]
+      summary: Get an expandable entity relationship network
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: depth
+          in: query
+          required: false
+          schema:
+            type: number
+            minimum: 1
+            maximum: 2
+            default: 1
+      responses:
+        "200":
+          description: Network nodes and edges
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkGraph"
+  /paths:
+    get:
+      operationId: findEntityPath
+      tags: [intelligence]
+      summary: Find the shortest relationship path between two entities
+      parameters:
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Shortest path
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PathResult"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +159,132 @@ components:
           type: string
       required:
         - status
+    EntitySearchResult:
+      type: object
+      required: [id, name, schemaType, score, datasets]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        schemaType: { type: string }
+        score: { type: number }
+        datasets:
+          type: array
+          items: { type: string }
+        country:
+          type: ["string", "null"]
+        birthDate:
+          type: ["string", "null"]
+        sourceUrl:
+          type: ["string", "null"]
+    Entity:
+      type: object
+      required: [id, name, schemaType, aliases, datasets, properties, sources]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        schemaType: { type: string }
+        aliases:
+          type: array
+          items: { type: string }
+        datasets:
+          type: array
+          items: { type: string }
+        properties:
+          type: object
+          additionalProperties:
+            type: array
+            items: { type: string }
+        sources:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourceCitation"
+    SourceCitation:
+      type: object
+      required: [title, url]
+      properties:
+        title: { type: string }
+        url: { type: string }
+        publisher:
+          type: ["string", "null"]
+    NetworkNode:
+      type: object
+      required: [id, label, schemaType, depth]
+      properties:
+        id: { type: string }
+        label: { type: string }
+        schemaType: { type: string }
+        depth: { type: number }
+        datasets:
+          type: array
+          items: { type: string }
+    NetworkEdge:
+      type: object
+      required: [source, target, relationshipType, confidence, citation]
+      properties:
+        source: { type: string }
+        target: { type: string }
+        relationshipType: { type: string }
+        confidence: { type: string }
+        citation:
+          $ref: "#/components/schemas/SourceCitation"
+    NetworkGraph:
+      type: object
+      required: [nodes, edges]
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: "#/components/schemas/NetworkNode"
+        edges:
+          type: array
+          items:
+            $ref: "#/components/schemas/NetworkEdge"
+    PathResult:
+      type: object
+      required: [found, nodes, edges]
+      properties:
+        found: { type: boolean }
+        nodes:
+          type: array
+          items:
+            $ref: "#/components/schemas/NetworkNode"
+        edges:
+          type: array
+          items:
+            $ref: "#/components/schemas/NetworkEdge"
+    DashboardSummary:
+      type: object
+      required: [totalEntities, totalEdges, datasets, recentEntities, cacheUpdatedAt, sourceStatus]
+      properties:
+        totalEntities: { type: number }
+        totalEdges: { type: number }
+        sourceStatus:
+          type: string
+          enum: [ready, setup_required]
+        datasets:
+          type: array
+          items:
+            type: object
+            required: [name, count]
+            properties:
+              name: { type: string }
+              count: { type: number }
+        recentEntities:
+          type: array
+          items:
+            $ref: "#/components/schemas/EntitySearchResult"
+        cacheUpdatedAt:
+          type: ["string", "null"]
+    FeedSource:
+      type: object
+      required: [id, name, publisher, format, url, mode, status, description]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        publisher: { type: string }
+        format: { type: string }
+        url: { type: string }
+        mode: { type: string }
+        status: { type: string }
+        description: { type: string }
 

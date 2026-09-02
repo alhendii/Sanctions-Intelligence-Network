@@ -1,6 +1,6 @@
-# [Project name]
+# Ledgerline — Sanctions Intelligence Network
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Ledgerline is a source-first OSINT workspace for searching sanctioned entities and tracing cited relationships.
 
 ## Run & Operate
 
@@ -22,23 +22,34 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/sanctions-intelligence/src/App.tsx` — responsive research workspace and routes
+- `artifacts/api-server/src/lib/opensanctions.ts` — OpenSanctions adapter, normalization, and Postgres cache
+- `artifacts/api-server/src/lib/free-feeds.ts` — public feed catalog plus automatic OFAC XML ingestion/fallback search
+- `artifacts/api-server/src/routes/intelligence.ts` — dashboard, search, dossier, network, and path endpoints
+- `lib/api-spec/openapi.yaml` — source of truth for API contracts
+- `lib/db/src/schema/sanctions.ts` — `entities` and `edges` cache tables
+- `artifacts/sanctions-intelligence/src/index.css` — Ledgerline visual tokens and global styles
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- OpenSanctions is the preferred relationship source, while official OFAC SDN and Consolidated XML feeds provide a free fallback for entity search.
+- The API key stays server-side in `OPEN_SANCTIONS_API_KEY`; the browser only talks to the shared API server.
+- EU, UN, UK, ICIJ, OCCRP, and state-registry sources are exposed as discovery links until their formats, licensing, and update behavior are independently validated.
+- Search results and relationship records are cached in Postgres to reduce repeated upstream requests and preserve a local research trail.
+- Relationship confidence is represented explicitly and citations are returned with every graph edge.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Ledgerline provides a dashboard overview, fuzzy name search, source-backed entity dossiers, an official source registry, expandable relationship context, and shortest-path tracing between two entities.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Do not fabricate placeholder sanctions data when the OpenSanctions source is unavailable.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Search automatically falls back to public OFAC XML feeds when `OPEN_SANCTIONS_API_KEY` is absent; relationship expansion still requires an OpenSanctions key.
+- The generated Zod package currently uses Zod 3; after codegen, keep the Zod barrel exporting generated API schemas only to avoid a generated parameter-name collision.
 
 ## Pointers
 
