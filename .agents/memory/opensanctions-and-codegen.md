@@ -7,4 +7,4 @@ OpenSanctions API requests require an `Authorization: ApiKey ...` header. Offici
 
 **Why:** The public documentation endpoint responds with an authentication error even though the service and documentation are public. Several other sources have official pages but unstable, fragmented, or format-specific downloads, so they should not be scraped as if they were one unified feed.
 
-**How to apply:** Keep the key server-side as `OPEN_SANCTIONS_API_KEY`, route upstream calls through the API server, use official OFAC XML for no-key search fallback, and label discovery-only sources clearly. After OpenAPI codegen, confirm the generated Zod barrel still avoids duplicate parameter exports under the workspace's Zod 3 dependency.
+**How to apply:** Keep the key server-side as `OPEN_SANCTIONS_API_KEY`, route upstream calls through the API server, use official OFAC XML for no-key search fallback, and label discovery-only sources clearly. After OpenAPI codegen, confirm the generated Zod barrel still avoids duplicate parameter exports under the workspace's Zod 3 dependency; serialize Drizzle dates to ISO strings before parsing generated response schemas.

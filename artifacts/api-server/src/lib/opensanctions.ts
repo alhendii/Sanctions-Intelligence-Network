@@ -1,6 +1,7 @@
 import { and, desc, eq, sql } from "drizzle-orm";
 import { db, edgesTable, entitiesTable, type Entity, type Edge } from "@workspace/db";
 import { searchFreeFeedEntities } from "./free-feeds";
+import { getCorporateNetwork } from "./corporate";
 
 const API_BASE = "https://api.opensanctions.org";
 const ENTITY_URL = "https://www.opensanctions.org/entities";
@@ -157,7 +158,7 @@ function matchScore(query: string, name: string, aliases: string[]): number {
   return Math.min(0.89, 0.7 + bestOverlap * 0.18);
 }
 
-export async function searchSanctions(query: string, limit: number): Promise<ReturnType<typeof normalizeEntity>[]> {
+export async function searchSanctions(query: string, limit: number): Promise<Array<ReturnType<typeof normalizeEntity> & { matchScore?: number; matchReasons?: Array<{ label: string; detail: string }> }>> {
   if (!process.env.OPEN_SANCTIONS_API_KEY) {
     return searchFreeFeedEntities(query, limit);
   }
@@ -175,7 +176,10 @@ export async function searchSanctions(query: string, limit: number): Promise<Ret
 
 export async function getSanctionsEntity(id: string): Promise<ReturnType<typeof normalizeEntity>> {
   const cached = await db.select().from(entitiesTable).where(eq(entitiesTable.id, id)).limit(1);
-  if (cached[0] && isFresh(cached[0])) {
+  // Public-feed records are still authoritative cached records when live
+  // OpenSanctions credentials are not configured. Do not turn a usable OFAC
+  // dossier into a hard failure merely because its refresh window elapsed.
+  if (cached[0] && (!process.env.OPEN_SANCTIONS_API_KEY || isFresh(cached[0]))) {
     return {
       id: cached[0].id,
       name: cached[0].name,
@@ -202,6 +206,9 @@ function adjacentEntity(value: string | RawEntity): RawEntity | null {
 }
 
 export async function getSanctionsNetwork(id: string, depth: number): Promise<{ nodes: Array<{ id: string; label: string; schemaType: string; depth: number; datasets: string[] }>; edges: Array<{ source: string; target: string; relationshipType: string; confidence: string; citation: { title: string; url: string; publisher: string } }> }> {
+  if (id.startsWith("gleif:")) {
+    return getCorporateNetwork(id);
+  }
   const root = await getSanctionsEntity(id);
   const nodes = new Map<string, { id: string; label: string; schemaType: string; depth: number; datasets: string[] }>([
     [root.id, { id: root.id, label: root.name, schemaType: root.schemaType, depth: 0, datasets: root.datasets }],
@@ -349,6 +356,7 @@ export async function getSummary() {
       country: entity.properties.country?.[0] ?? entity.properties.nationality?.[0] ?? null,
       birthDate: entity.properties.birthDate?.[0] ?? null,
       sourceUrl: entity.sources[0]?.url ?? null,
+      matchReasons: [{ label: "Cached source record", detail: "Recently observed in an indexed public source cache." }],
     })),
     cacheUpdatedAt: recent[0]?.updatedAt?.toISOString() ?? null,
   };

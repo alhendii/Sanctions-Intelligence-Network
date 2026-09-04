@@ -9,11 +9,17 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface MatchReason {
+  label: string;
+  detail: string;
+}
+
 export interface EntitySearchResult {
   id: string;
   name: string;
   schemaType: string;
   score: number;
+  matchReasons: MatchReason[];
   datasets: string[];
   /** @nullable */
   country?: string | null;
@@ -92,6 +98,17 @@ export interface DashboardSummary {
   cacheUpdatedAt: string | null;
 }
 
+export type FeedSourceCategory = typeof FeedSourceCategory[keyof typeof FeedSourceCategory];
+
+
+export const FeedSourceCategory = {
+  sanctions: 'sanctions',
+  pep: 'pep',
+  adverse_media: 'adverse_media',
+  corporate_registry: 'corporate_registry',
+  investigative_database: 'investigative_database',
+} as const;
+
 export interface FeedSource {
   id: string;
   name: string;
@@ -100,8 +117,221 @@ export interface FeedSource {
   url: string;
   mode: string;
   status: string;
+  category: FeedSourceCategory;
   description: string;
 }
+
+export interface CoverageItem {
+  id: number;
+  feed: string;
+  title: string;
+  url: string;
+  publisher: string;
+  /** @nullable */
+  summary?: string | null;
+  /** @nullable */
+  publishedAt?: string | null;
+  fetchedAt: string;
+  verification: string;
+}
+
+export interface CoverageFeedStatus {
+  feed: string;
+  status: string;
+  /** @nullable */
+  message?: string | null;
+}
+
+export interface CoverageResponse {
+  items: CoverageItem[];
+  feeds: CoverageFeedStatus[];
+}
+
+export interface BatchScreenInput {
+  csv: string;
+  /**
+     * @minimum 1
+     * @maximum 10
+     */
+  limitPerName?: number;
+}
+
+export interface BatchMatch {
+  id: string;
+  name: string;
+  schemaType: string;
+  score: number;
+  datasets: string[];
+  /** @nullable */
+  sourceUrl?: string | null;
+  reasons: MatchReason[];
+}
+
+export interface BatchScreenItem {
+  input: string;
+  status: string;
+  matches: BatchMatch[];
+  /** @nullable */
+  message?: string | null;
+}
+
+export interface BatchScreenResponse {
+  items: BatchScreenItem[];
+  generatedAt: string;
+}
+
+export type BatchExportInputFormat = typeof BatchExportInputFormat[keyof typeof BatchExportInputFormat];
+
+
+export const BatchExportInputFormat = {
+  json: 'json',
+  csv: 'csv',
+  pdf: 'pdf',
+} as const;
+
+export interface BatchExportInput {
+  items: BatchScreenItem[];
+  format: BatchExportInputFormat;
+}
+
+export interface Watchlist {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  entities: number;
+}
+
+export interface CreateWatchlistInput {
+  name: string;
+}
+
+export interface WatchlistEntityInput {
+  entityId: string;
+}
+
+export interface WatchlistEntity {
+  id: number;
+  watchlistId: number;
+  entityId: string;
+  addedAt: string;
+  /** @nullable */
+  lastCheckedAt?: string | null;
+}
+
+/**
+ * @nullable
+ */
+export type WatchEventBefore = { [key: string]: unknown } | null;
+
+/**
+ * @nullable
+ */
+export type WatchEventAfter = { [key: string]: unknown } | null;
+
+export interface WatchEvent {
+  id: number;
+  watchlistEntityId: number;
+  entityId: string;
+  eventType: string;
+  summary: string;
+  /** @nullable */
+  before?: WatchEventBefore;
+  /** @nullable */
+  after?: WatchEventAfter;
+  detectedAt: string;
+  /** @nullable */
+  readAt?: string | null;
+}
+
+export interface ResearchCase {
+  id: number;
+  name: string;
+  /** @nullable */
+  description: string | null;
+  createdAt: string;
+  updatedAt: string;
+  entityCount: number;
+  noteCount: number;
+}
+
+export interface CreateCaseInput {
+  name: string;
+  /** @nullable */
+  description?: string | null;
+}
+
+export interface CaseEntityInput {
+  entityId: string;
+  /** @nullable */
+  note?: string | null;
+}
+
+export interface CaseEntity {
+  id: number;
+  caseId: number;
+  entityId: string;
+  /** @nullable */
+  note?: string | null;
+  addedAt: string;
+}
+
+export interface CaseNoteInput {
+  body: string;
+}
+
+export interface CaseNote {
+  id: number;
+  caseId: number;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CaseDetail = ResearchCase & {
+  entities: CaseEntity[];
+  notes: CaseNote[];
+};
+
+export type GetEntityCoverageParams = {
+refresh?: boolean;
+};
+
+export type CheckWatchlist200 = {
+  checked: number;
+  changes: number;
+};
+
+export type ExportEntityParams = {
+format: ExportEntityFormat;
+};
+
+export type ExportEntityFormat = typeof ExportEntityFormat[keyof typeof ExportEntityFormat];
+
+
+export const ExportEntityFormat = {
+  json: 'json',
+  csv: 'csv',
+  pdf: 'pdf',
+} as const;
+
+export type ExportEntityNetworkParams = {
+/**
+ * @minimum 1
+ * @maximum 2
+ */
+depth?: number;
+format: ExportEntityNetworkFormat;
+};
+
+export type ExportEntityNetworkFormat = typeof ExportEntityNetworkFormat[keyof typeof ExportEntityNetworkFormat];
+
+
+export const ExportEntityNetworkFormat = {
+  json: 'json',
+  csv: 'csv',
+  pdf: 'pdf',
+} as const;
 
 export type SearchEntitiesParams = {
 /**

@@ -52,6 +52,269 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/FeedSource"
+  /entities/{id}/coverage:
+    get:
+      operationId: getEntityCoverage
+      tags: [intelligence]
+      summary: Get unverified news context for an entity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: refresh
+          in: query
+          required: false
+          schema: { type: boolean, default: false }
+      responses:
+        "200":
+          description: Related coverage and feed availability
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoverageResponse"
+  /batch-screen:
+    post:
+      operationId: batchScreen
+      tags: [intelligence]
+      summary: Screen a CSV or newline-separated list of names
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BatchScreenInput"
+      responses:
+        "200":
+          description: Batch screening results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchScreenResponse"
+  /watchlists:
+    get:
+      operationId: listWatchlists
+      tags: [research]
+      responses:
+        "200":
+          description: Watchlists
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Watchlist" }
+    post:
+      operationId: createWatchlist
+      tags: [research]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateWatchlistInput" }
+      responses:
+        "201":
+          description: Created watchlist
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Watchlist" }
+  /watchlists/{id}/entities:
+    post:
+      operationId: addWatchlistEntity
+      tags: [research]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: number }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/WatchlistEntityInput" }
+      responses:
+        "201":
+          description: Watched entity
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/WatchlistEntity" }
+  /watchlists/{id}/events:
+    get:
+      operationId: getWatchlistEvents
+      tags: [research]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: number }
+      responses:
+        "200":
+          description: Watch events
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/WatchEvent" }
+  /watchlists/{id}/check:
+    post:
+      operationId: checkWatchlist
+      tags: [research]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: number }
+      responses:
+        "200":
+          description: Watchlist check result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [checked, changes]
+                properties:
+                  checked: { type: number }
+                  changes: { type: number }
+  /cases:
+    get:
+      operationId: listCases
+      tags: [research]
+      responses:
+        "200":
+          description: Investigation cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ResearchCase" }
+    post:
+      operationId: createCase
+      tags: [research]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateCaseInput" }
+      responses:
+        "201":
+          description: Created case
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ResearchCase" }
+  /cases/{id}:
+    get:
+      operationId: getCase
+      tags: [research]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: number }
+      responses:
+        "200":
+          description: Investigation case
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseDetail" }
+  /cases/{id}/entities:
+    post:
+      operationId: addCaseEntity
+      tags: [research]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: number }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CaseEntityInput" }
+      responses:
+        "201":
+          description: Added case entity
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseEntity" }
+  /cases/{id}/notes:
+    post:
+      operationId: addCaseNote
+      tags: [research]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: number }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CaseNoteInput" }
+      responses:
+        "201":
+          description: Added case note
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CaseNote" }
+  /entities/{id}/export:
+    get:
+      operationId: exportEntity
+      tags: [research]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: format
+          in: query
+          required: true
+          schema: { type: string, enum: [json, csv, pdf] }
+      responses:
+        "200":
+          description: Entity export
+          content:
+            application/json: {}
+            text/csv: {}
+            application/pdf: {}
+  /entities/{id}/network/export:
+    get:
+      operationId: exportEntityNetwork
+      tags: [research]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: depth
+          in: query
+          required: false
+          schema: { type: number, minimum: 1, maximum: 2, default: 2 }
+        - name: format
+          in: query
+          required: true
+          schema: { type: string, enum: [json, csv, pdf] }
+      responses:
+        "200":
+          description: Network export
+          content:
+            application/json: {}
+            text/csv: {}
+            application/pdf: {}
+  /batch-screen/export:
+    post:
+      operationId: exportBatchScreen
+      tags: [research]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BatchExportInput" }
+      responses:
+        "200":
+          description: Batch export
+          content:
+            application/json: {}
+            text/csv: {}
+            application/pdf: {}
   /entities/search:
     get:
       operationId: searchEntities
@@ -161,12 +424,15 @@ components:
         - status
     EntitySearchResult:
       type: object
-      required: [id, name, schemaType, score, datasets]
+      required: [id, name, schemaType, score, datasets, matchReasons]
       properties:
         id: { type: string }
         name: { type: string }
         schemaType: { type: string }
         score: { type: number }
+        matchReasons:
+          type: array
+          items: { $ref: "#/components/schemas/MatchReason" }
         datasets:
           type: array
           items: { type: string }
@@ -277,7 +543,7 @@ components:
           type: ["string", "null"]
     FeedSource:
       type: object
-      required: [id, name, publisher, format, url, mode, status, description]
+      required: [id, name, publisher, format, url, mode, status, category, description]
       properties:
         id: { type: string }
         name: { type: string }
@@ -286,5 +552,190 @@ components:
         url: { type: string }
         mode: { type: string }
         status: { type: string }
+        category:
+          type: string
+          enum: [sanctions, pep, adverse_media, corporate_registry, investigative_database]
         description: { type: string }
+    MatchReason:
+      type: object
+      required: [label, detail]
+      properties:
+        label: { type: string }
+        detail: { type: string }
+    CoverageItem:
+      type: object
+      required: [id, feed, title, url, publisher, verification, fetchedAt]
+      properties:
+        id: { type: number }
+        feed: { type: string }
+        title: { type: string }
+        url: { type: string }
+        publisher: { type: string }
+        summary: { type: ["string", "null"] }
+        publishedAt: { type: ["string", "null"] }
+        fetchedAt: { type: string }
+        verification: { type: string }
+    CoverageFeedStatus:
+      type: object
+      required: [feed, status]
+      properties:
+        feed: { type: string }
+        status: { type: string }
+        message: { type: ["string", "null"] }
+    CoverageResponse:
+      type: object
+      required: [items, feeds]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CoverageItem" }
+        feeds:
+          type: array
+          items: { $ref: "#/components/schemas/CoverageFeedStatus" }
+    BatchScreenInput:
+      type: object
+      required: [csv]
+      properties:
+        csv: { type: string }
+        limitPerName: { type: number, minimum: 1, maximum: 10, default: 3 }
+    BatchMatch:
+      type: object
+      required: [id, name, schemaType, score, datasets, reasons]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        schemaType: { type: string }
+        score: { type: number }
+        datasets:
+          type: array
+          items: { type: string }
+        sourceUrl: { type: ["string", "null"] }
+        reasons:
+          type: array
+          items: { $ref: "#/components/schemas/MatchReason" }
+    BatchScreenItem:
+      type: object
+      required: [input, status, matches]
+      properties:
+        input: { type: string }
+        status: { type: string }
+        matches:
+          type: array
+          items: { $ref: "#/components/schemas/BatchMatch" }
+        message: { type: ["string", "null"] }
+    BatchScreenResponse:
+      type: object
+      required: [items, generatedAt]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/BatchScreenItem" }
+        generatedAt: { type: string }
+    BatchExportInput:
+      type: object
+      required: [items, format]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/BatchScreenItem" }
+        format: { type: string, enum: [json, csv, pdf] }
+    Watchlist:
+      type: object
+      required: [id, name, createdAt, updatedAt, entities]
+      properties:
+        id: { type: number }
+        name: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+        entities: { type: number }
+    CreateWatchlistInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+    WatchlistEntityInput:
+      type: object
+      required: [entityId]
+      properties:
+        entityId: { type: string }
+    WatchlistEntity:
+      type: object
+      required: [id, watchlistId, entityId, addedAt]
+      properties:
+        id: { type: number }
+        watchlistId: { type: number }
+        entityId: { type: string }
+        addedAt: { type: string }
+        lastCheckedAt: { type: ["string", "null"] }
+    WatchEvent:
+      type: object
+      required: [id, watchlistEntityId, entityId, eventType, summary, detectedAt]
+      properties:
+        id: { type: number }
+        watchlistEntityId: { type: number }
+        entityId: { type: string }
+        eventType: { type: string }
+        summary: { type: string }
+        before: { type: ["object", "null"], additionalProperties: true }
+        after: { type: ["object", "null"], additionalProperties: true }
+        detectedAt: { type: string }
+        readAt: { type: ["string", "null"] }
+    ResearchCase:
+      type: object
+      required: [id, name, description, createdAt, updatedAt, entityCount, noteCount]
+      properties:
+        id: { type: number }
+        name: { type: string }
+        description: { type: ["string", "null"] }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+        entityCount: { type: number }
+        noteCount: { type: number }
+    CreateCaseInput:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: ["string", "null"] }
+    CaseEntityInput:
+      type: object
+      required: [entityId]
+      properties:
+        entityId: { type: string }
+        note: { type: ["string", "null"] }
+    CaseEntity:
+      type: object
+      required: [id, caseId, entityId, addedAt]
+      properties:
+        id: { type: number }
+        caseId: { type: number }
+        entityId: { type: string }
+        note: { type: ["string", "null"] }
+        addedAt: { type: string }
+    CaseNoteInput:
+      type: object
+      required: [body]
+      properties:
+        body: { type: string }
+    CaseNote:
+      type: object
+      required: [id, caseId, body, createdAt, updatedAt]
+      properties:
+        id: { type: number }
+        caseId: { type: number }
+        body: { type: string }
+        createdAt: { type: string }
+        updatedAt: { type: string }
+    CaseDetail:
+      allOf:
+        - $ref: "#/components/schemas/ResearchCase"
+        - type: object
+          required: [entities, notes]
+          properties:
+            entities:
+              type: array
+              items: { $ref: "#/components/schemas/CaseEntity" }
+            notes:
+              type: array
+              items: { $ref: "#/components/schemas/CaseNote" }
 

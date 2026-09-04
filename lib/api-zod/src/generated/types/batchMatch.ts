@@ -7,17 +7,13 @@
  */
 import type { MatchReason } from './matchReason';
 
-export interface EntitySearchResult {
+export interface BatchMatch {
   id: string;
   name: string;
   schemaType: string;
   score: number;
-  matchReasons: MatchReason[];
   datasets: string[];
   /** @nullable */
-  country?: string | null;
-  /** @nullable */
-  birthDate?: string | null;
-  /** @nullable */
   sourceUrl?: string | null;
+  reasons: MatchReason[];
 }

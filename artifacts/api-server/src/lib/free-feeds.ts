@@ -1,5 +1,7 @@
 import { like } from "drizzle-orm";
 import { db, entitiesTable } from "@workspace/db";
+import { searchCachedEntities } from "./search-index";
+import { searchCorporateRegistry } from "./corporate";
 
 type FeedSource = {
   id: string;
@@ -9,6 +11,7 @@ type FeedSource = {
   url: string;
   mode: string;
   status: string;
+  category: "sanctions" | "pep" | "adverse_media" | "corporate_registry" | "investigative_database";
   description: string;
 };
 
@@ -21,6 +24,7 @@ export const freeFeedCatalog: FeedSource[] = [
     url: "https://sanctionslistservice.ofac.treas.gov/api/publicationpreview/exports/sdn.xml",
     mode: "automatic",
     status: "available",
+    category: "sanctions",
     description: "Primary U.S. Treasury SDN publication with names, programs, aliases, and identifiers.",
   },
   {
@@ -31,6 +35,7 @@ export const freeFeedCatalog: FeedSource[] = [
     url: "https://sanctionslistservice.ofac.treas.gov/api/publicationpreview/exports/consolidated.xml",
     mode: "automatic",
     status: "available",
+    category: "sanctions",
     description: "U.S. Treasury consolidated non-SDN and other sanctions list records.",
   },
   {
@@ -41,6 +46,7 @@ export const freeFeedCatalog: FeedSource[] = [
     url: "https://finance.ec.europa.eu/eu-and-world/sanctions-restrictive-measures/overview-sanctions-and-related-information_en",
     mode: "discovery",
     status: "available",
+    category: "sanctions",
     description: "Official EU financial sanctions publication and downloadable consolidated files.",
   },
   {
@@ -51,6 +57,7 @@ export const freeFeedCatalog: FeedSource[] = [
     url: "https://main.un.org/securitycouncil/en/content/un-sc-consolidated-list",
     mode: "discovery",
     status: "available",
+    category: "sanctions",
     description: "Official UN consolidated list, linked directly to the Security Council publication page.",
   },
   {
@@ -61,6 +68,7 @@ export const freeFeedCatalog: FeedSource[] = [
     url: "https://www.gov.uk/government/publications/the-uk-sanctions-list",
     mode: "discovery",
     status: "available",
+    category: "sanctions",
     description: "UK government's current sanctions list and official download instructions.",
   },
   {
@@ -71,6 +79,7 @@ export const freeFeedCatalog: FeedSource[] = [
     url: "https://offshoreleaks.icij.org/",
     mode: "discovery",
     status: "available",
+    category: "investigative_database",
     description: "Searchable Panama Papers, Paradise Papers, Pandora Papers, Bahamas Leaks, and Offshore Leaks records.",
   },
   {
@@ -81,6 +90,7 @@ export const freeFeedCatalog: FeedSource[] = [
     url: "https://aleph.occrp.org/",
     mode: "discovery",
     status: "available",
+    category: "investigative_database",
     description: "Journalism research platform for leaked documents, company registries, sanctions, and related records.",
   },
   {
@@ -91,7 +101,41 @@ export const freeFeedCatalog: FeedSource[] = [
     url: "https://www.nass.org/canadian-and-us-state-corporate-registration-information",
     mode: "discovery",
     status: "fragmented",
+    category: "corporate_registry",
     description: "Directory of state-level corporate registries; no single unified API is claimed.",
+  },
+  {
+    id: "gleif_lei",
+    name: "GLEIF Legal Entity Identifier Search",
+    publisher: "Global Legal Entity Identifier Foundation",
+    format: "JSON API",
+    url: "https://www.gleif.org/en/lei-data/gleif-concatenated-file",
+    mode: "automatic",
+    status: "available",
+    category: "corporate_registry",
+    description: "Validated public legal-entity registry used for cited direct- and ultimate-parent relationships when available.",
+  },
+  {
+    id: "pep_reference",
+    name: "PEP reference datasets",
+    publisher: "OpenSanctions",
+    format: "Dataset/API",
+    url: "https://www.opensanctions.org/datasets/",
+    mode: "discovery",
+    status: "setup_required",
+    category: "pep",
+    description: "Politically exposed person datasets are a separate research category; Ledgerline does not silently merge PEP status with sanctions status.",
+  },
+  {
+    id: "adverse_media_context",
+    name: "GDELT and Google News related coverage",
+    publisher: "GDELT / Google News",
+    format: "JSON API + RSS",
+    url: "https://www.gdeltproject.org/",
+    mode: "automatic",
+    status: "available",
+    category: "adverse_media",
+    description: "Unverified media context shown separately from sanctions and PEP records; coverage is not an adverse-media determination.",
   },
 ];
 
@@ -172,41 +216,20 @@ export async function syncFreeFeeds(feedIds = ["ofac_sdn", "ofac_consolidated"])
 }
 
 export async function searchFreeFeedEntities(query: string, limit: number) {
-  let cached = await db.select().from(entitiesTable).where(like(entitiesTable.id, "ofac_%"));
+  let cached = await searchCachedEntities(query, limit);
   if (!cached.length) {
     await syncFreeFeeds();
-    cached = await db.select().from(entitiesTable).where(like(entitiesTable.id, "ofac_%"));
+    cached = await searchCachedEntities(query, limit);
   }
-  const normalizedQuery = query.toLocaleLowerCase().trim();
-  return cached
-    .map((entity) => {
-      const candidates = [entity.name, ...entity.aliases].map((value) => value.toLocaleLowerCase());
-      const score = candidates.some((value) => value === normalizedQuery)
-        ? 1
-        : candidates.some((value) => value.startsWith(normalizedQuery))
-          ? 0.97
-          : candidates.some((value) => value.includes(normalizedQuery))
-            ? 0.92
-            : 0;
-      return { entity, score };
-    })
-    .filter((match) => match.score > 0)
-    .sort((a, b) => b.score - a.score || a.entity.name.localeCompare(b.entity.name))
-    .slice(0, limit)
-    .map(({ entity }) => ({
-      id: entity.id,
-      name: entity.name,
-      schemaType: entity.schemaType,
-      aliases: entity.aliases,
-      datasets: entity.datasets,
-      properties: entity.properties,
-      sources: entity.sources.map((source) => ({
-        title: source.title,
-        url: source.url,
-        publisher: source.publisher ?? "Public source",
-      })),
-      sourceUpdatedAt: entity.sourceUpdatedAt,
-    }));
+  if (cached.length < limit) {
+    try {
+      await searchCorporateRegistry(query, Math.max(1, limit - cached.length));
+      cached = await searchCachedEntities(query, limit);
+    } catch {
+      // GLEIF is additive coverage; an unavailable registry never blocks sanctions search.
+    }
+  }
+  return cached;
 }
 
 export async function getFreeFeedCatalog(): Promise<FeedSource[]> {

@@ -33,6 +33,10 @@ export const GetDashboardSummaryResponse = zod.object({
   "name": zod.string(),
   "schemaType": zod.string(),
   "score": zod.number(),
+  "matchReasons": zod.array(zod.object({
+  "label": zod.string(),
+  "detail": zod.string()
+})),
   "datasets": zod.array(zod.string()),
   "country": zod.string().nullish(),
   "birthDate": zod.string().nullish(),
@@ -53,9 +57,291 @@ export const GetSourcesResponseItem = zod.object({
   "url": zod.string(),
   "mode": zod.string(),
   "status": zod.string(),
+  "category": zod.enum(['sanctions', 'pep', 'adverse_media', 'corporate_registry', 'investigative_database']),
   "description": zod.string()
 })
 export const GetSourcesResponse = zod.array(GetSourcesResponseItem)
+
+
+/**
+ * @summary Get unverified news context for an entity
+ */
+export const GetEntityCoverageParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const getEntityCoverageQueryRefreshDefault = false;
+
+export const GetEntityCoverageQueryParams = zod.object({
+  "refresh": zod.coerce.boolean().default(getEntityCoverageQueryRefreshDefault)
+})
+
+export const GetEntityCoverageResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.number(),
+  "feed": zod.string(),
+  "title": zod.string(),
+  "url": zod.string(),
+  "publisher": zod.string(),
+  "summary": zod.string().nullish(),
+  "publishedAt": zod.string().nullish(),
+  "fetchedAt": zod.string(),
+  "verification": zod.string()
+})),
+  "feeds": zod.array(zod.object({
+  "feed": zod.string(),
+  "status": zod.string(),
+  "message": zod.string().nullish()
+}))
+})
+
+
+/**
+ * @summary Screen a CSV or newline-separated list of names
+ */
+export const batchScreenBodyLimitPerNameDefault = 3;
+export const batchScreenBodyLimitPerNameMax = 10;
+
+
+
+export const BatchScreenBody = zod.object({
+  "csv": zod.string(),
+  "limitPerName": zod.number().min(1).max(batchScreenBodyLimitPerNameMax).default(batchScreenBodyLimitPerNameDefault)
+})
+
+export const BatchScreenResponse = zod.object({
+  "items": zod.array(zod.object({
+  "input": zod.string(),
+  "status": zod.string(),
+  "matches": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "schemaType": zod.string(),
+  "score": zod.number(),
+  "datasets": zod.array(zod.string()),
+  "sourceUrl": zod.string().nullish(),
+  "reasons": zod.array(zod.object({
+  "label": zod.string(),
+  "detail": zod.string()
+}))
+})),
+  "message": zod.string().nullish()
+})),
+  "generatedAt": zod.string()
+})
+
+
+export const ListWatchlistsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "entities": zod.number()
+})
+export const ListWatchlistsResponse = zod.array(ListWatchlistsResponseItem)
+
+
+export const CreateWatchlistBody = zod.object({
+  "name": zod.string()
+})
+
+export const CreateWatchlistResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "entities": zod.number()
+})
+
+
+export const AddWatchlistEntityParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const AddWatchlistEntityBody = zod.object({
+  "entityId": zod.string()
+})
+
+export const AddWatchlistEntityResponse = zod.object({
+  "id": zod.number(),
+  "watchlistId": zod.number(),
+  "entityId": zod.string(),
+  "addedAt": zod.string(),
+  "lastCheckedAt": zod.string().nullish()
+})
+
+
+export const GetWatchlistEventsParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetWatchlistEventsResponseItem = zod.object({
+  "id": zod.number(),
+  "watchlistEntityId": zod.number(),
+  "entityId": zod.string(),
+  "eventType": zod.string(),
+  "summary": zod.string(),
+  "before": zod.record(zod.string(), zod.unknown()).nullish(),
+  "after": zod.record(zod.string(), zod.unknown()).nullish(),
+  "detectedAt": zod.string(),
+  "readAt": zod.string().nullish()
+})
+export const GetWatchlistEventsResponse = zod.array(GetWatchlistEventsResponseItem)
+
+
+export const CheckWatchlistParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const CheckWatchlistResponse = zod.object({
+  "checked": zod.number(),
+  "changes": zod.number()
+})
+
+
+export const ListCasesResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "entityCount": zod.number(),
+  "noteCount": zod.number()
+})
+export const ListCasesResponse = zod.array(ListCasesResponseItem)
+
+
+export const CreateCaseBody = zod.object({
+  "name": zod.string(),
+  "description": zod.string().nullish()
+})
+
+export const CreateCaseResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "entityCount": zod.number(),
+  "noteCount": zod.number()
+})
+
+
+export const GetCaseParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetCaseResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullable(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string(),
+  "entityCount": zod.number(),
+  "noteCount": zod.number()
+}).and(zod.object({
+  "entities": zod.array(zod.object({
+  "id": zod.number(),
+  "caseId": zod.number(),
+  "entityId": zod.string(),
+  "note": zod.string().nullish(),
+  "addedAt": zod.string()
+})),
+  "notes": zod.array(zod.object({
+  "id": zod.number(),
+  "caseId": zod.number(),
+  "body": zod.string(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+}))
+}))
+
+
+export const AddCaseEntityParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const AddCaseEntityBody = zod.object({
+  "entityId": zod.string(),
+  "note": zod.string().nullish()
+})
+
+export const AddCaseEntityResponse = zod.object({
+  "id": zod.number(),
+  "caseId": zod.number(),
+  "entityId": zod.string(),
+  "note": zod.string().nullish(),
+  "addedAt": zod.string()
+})
+
+
+export const AddCaseNoteParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const AddCaseNoteBody = zod.object({
+  "body": zod.string()
+})
+
+export const AddCaseNoteResponse = zod.object({
+  "id": zod.number(),
+  "caseId": zod.number(),
+  "body": zod.string(),
+  "createdAt": zod.string(),
+  "updatedAt": zod.string()
+})
+
+
+export const ExportEntityParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const ExportEntityQueryParams = zod.object({
+  "format": zod.enum(['json', 'csv', 'pdf'])
+})
+
+export const ExportEntityResponse = zod.unknown()
+
+
+export const ExportEntityNetworkParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const exportEntityNetworkQueryDepthDefault = 2;
+export const exportEntityNetworkQueryDepthMax = 2;
+
+
+
+export const ExportEntityNetworkQueryParams = zod.object({
+  "depth": zod.coerce.number().min(1).max(exportEntityNetworkQueryDepthMax).default(exportEntityNetworkQueryDepthDefault),
+  "format": zod.enum(['json', 'csv', 'pdf'])
+})
+
+export const ExportEntityNetworkResponse = zod.unknown()
+
+
+export const ExportBatchScreenBody = zod.object({
+  "items": zod.array(zod.object({
+  "input": zod.string(),
+  "status": zod.string(),
+  "matches": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "schemaType": zod.string(),
+  "score": zod.number(),
+  "datasets": zod.array(zod.string()),
+  "sourceUrl": zod.string().nullish(),
+  "reasons": zod.array(zod.object({
+  "label": zod.string(),
+  "detail": zod.string()
+}))
+})),
+  "message": zod.string().nullish()
+})),
+  "format": zod.enum(['json', 'csv', 'pdf'])
+})
+
+export const ExportBatchScreenResponse = zod.unknown()
 
 
 /**
@@ -78,6 +364,10 @@ export const SearchEntitiesResponseItem = zod.object({
   "name": zod.string(),
   "schemaType": zod.string(),
   "score": zod.number(),
+  "matchReasons": zod.array(zod.object({
+  "label": zod.string(),
+  "detail": zod.string()
+})),
   "datasets": zod.array(zod.string()),
   "country": zod.string().nullish(),
   "birthDate": zod.string().nullish(),

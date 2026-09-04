@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { FeedSourceCategory } from './feedSourceCategory';
 
 export interface FeedSource {
   id: string;
@@ -14,5 +15,6 @@ export interface FeedSource {
   url: string;
   mode: string;
   status: string;
+  category: FeedSourceCategory;
   description: string;
 }
