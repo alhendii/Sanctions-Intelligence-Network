@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   Activity, ArrowRight, BookOpen, Building2, CalendarClock, CheckCircle2, ChevronDown, ChevronRight, CircleAlert,
   ClipboardList, Database, Download, ExternalLink, FilePlus2, FileSearch, Fingerprint, FolderOpen, GitBranch,
-  Globe2, Link2, ListChecks, Menu, Network, PanelLeft, Play, Plus, RefreshCw, Search, ShieldCheck,
+  Globe2, Link2, ListChecks, Menu, Network, PanelLeft, Play, Plus, RefreshCw, Search,
   SlidersHorizontal, StickyNote, Upload, UserRound, X
 } from 'lucide-react';
 import {
@@ -24,6 +24,14 @@ import NotFound from '@/pages/not-found';
 const queryClient = new QueryClient();
 
 function cn(...items: Array<string | false | undefined>) { return items.filter(Boolean).join(' '); }
+
+function CitedLedgerMark() {
+  return <svg viewBox="0 0 40 40" aria-hidden="true" className="h-[19px] w-[19px]">
+    <path d="M10 11.5h20M10 17h13M10 24h20M10 29.5h14" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    <path d="M27.5 15.5v13" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+    <circle cx="27.5" cy="11.5" r="2.5" fill="currentColor" />
+  </svg>;
+}
 
 const navItems = [
   { href: '/', label: 'Overview', icon: Activity },
@@ -46,7 +54,7 @@ function AppShell({ children }: { children: ReactNode }) {
       )}>
         <div className="flex h-[84px] items-center justify-between border-b border-sidebar-border px-6">
           <Link href="/" data-testid="link-brand" className="ledger-brand flex items-center gap-3 text-sidebar-accent-foreground">
-            <span className="ledger-brand-mark grid h-9 w-9 place-items-center bg-primary text-primary-foreground"><ShieldCheck size={18} strokeWidth={2.5} /></span>
+            <span className="ledger-brand-mark grid h-9 w-9 place-items-center bg-primary text-primary-foreground"><CitedLedgerMark /></span>
             <span className="font-display text-[24px] leading-none tracking-[-.04em]">Cited Ledger</span>
           </Link>
           <button type="button" onClick={() => setMobileOpen(false)} aria-label="Close navigation" data-testid="button-close-navigation" className="rounded-md p-1 text-sidebar-foreground/60 hover:text-sidebar-accent-foreground lg:hidden"><X size={18} /></button>
