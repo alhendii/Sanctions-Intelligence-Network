@@ -35,6 +35,8 @@ import {
   AddCaseNoteResponse,
   SearchEntitiesQueryParams,
   SearchEntitiesResponse,
+  DiscoverPeopleQueryParams,
+  DiscoverPeopleResponse,
 } from "@workspace/api-zod";
 import {
   findPath,
@@ -60,6 +62,7 @@ import {
   listWatchlists,
 } from "../lib/research";
 import { exportEntityData, exportNetworkData, toCsv, toPdf } from "../lib/exports";
+import { discoverPeople } from "../lib/discovery";
 
 const router: IRouter = Router();
 
@@ -76,6 +79,19 @@ function handleError(req: Parameters<NonNullable<Parameters<IRouter["get"]>[1]>>
 router.get("/dashboard/summary", async (req, res): Promise<void> => {
   try {
     res.json(GetDashboardSummaryResponse.parse(await getSummary()));
+  } catch (error) {
+    handleError(req, res, error);
+  }
+});
+
+router.get("/discover/people", async (req, res): Promise<void> => {
+  const parsed = DiscoverPeopleQueryParams.safeParse(req.query);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  try {
+    res.json(DiscoverPeopleResponse.parse(await discoverPeople(parsed.data)));
   } catch (error) {
     handleError(req, res, error);
   }

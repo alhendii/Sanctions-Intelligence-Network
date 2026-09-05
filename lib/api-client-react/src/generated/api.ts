@@ -33,6 +33,8 @@ import type {
   CreateCaseInput,
   CreateWatchlistInput,
   DashboardSummary,
+  DiscoverPeopleParams,
+  DiscoverPeopleResponse,
   Entity,
   EntitySearchResult,
   ExportEntityNetworkParams,
@@ -222,6 +224,90 @@ export function useGetDashboardSummary<TData = Awaited<ReturnType<typeof getDash
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetDashboardSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDiscoverPeopleUrl = (params?: DiscoverPeopleParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/discover/people?${stringifiedParams}` : `/api/discover/people`
+}
+
+/**
+ * @summary Discover recently added people with source-backed facets
+ */
+export const discoverPeople = async (params?: DiscoverPeopleParams, options?: Parameters<typeof customFetch>[1]): Promise<DiscoverPeopleResponse> => {
+
+  return customFetch<DiscoverPeopleResponse>(getDiscoverPeopleUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDiscoverPeopleQueryKey = (params?: DiscoverPeopleParams,) => {
+    return [
+    `/api/discover/people`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getDiscoverPeopleQueryOptions = <TData = Awaited<ReturnType<typeof discoverPeople>>, TError = ErrorType<unknown>>(params?: DiscoverPeopleParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof discoverPeople>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDiscoverPeopleQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof discoverPeople>>> = ({ signal }) => discoverPeople(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof discoverPeople>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type DiscoverPeopleQueryResult = NonNullable<Awaited<ReturnType<typeof discoverPeople>>>
+export type DiscoverPeopleQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Discover recently added people with source-backed facets
+ */
+
+export function useDiscoverPeople<TData = Awaited<ReturnType<typeof discoverPeople>>, TError = ErrorType<unknown>>(
+ params?: DiscoverPeopleParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof discoverPeople>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getDiscoverPeopleQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

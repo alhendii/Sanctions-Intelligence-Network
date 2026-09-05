@@ -29,6 +29,45 @@ export interface EntitySearchResult {
   sourceUrl?: string | null;
 }
 
+export interface DiscoverFacetOption {
+  value: string;
+  count: number;
+}
+
+export interface DiscoverPerson {
+  id: string;
+  name: string;
+  schemaType: string;
+  aliases: string[];
+  datasets: string[];
+  countries: string[];
+  organizations: string[];
+  industries: string[];
+  programs: string[];
+  roles: string[];
+  /** @nullable */
+  birthDate?: string | null;
+  addedAt: string;
+  /** @nullable */
+  sourceUrl?: string | null;
+}
+
+export interface DiscoverPeopleFacets {
+  countries: DiscoverFacetOption[];
+  organizations: DiscoverFacetOption[];
+  industries: DiscoverFacetOption[];
+  datasets: DiscoverFacetOption[];
+  programs: DiscoverFacetOption[];
+  roles: DiscoverFacetOption[];
+}
+
+export interface DiscoverPeopleResponse {
+  items: DiscoverPerson[];
+  total: number;
+  generatedAt: string;
+  facets: DiscoverPeopleFacets;
+}
+
 export type EntityProperties = {[key: string]: string[]};
 
 export interface SourceCitation {
@@ -292,6 +331,29 @@ export type CaseDetail = ResearchCase & {
   entities: CaseEntity[];
   notes: CaseNote[];
 };
+
+export type DiscoverPeopleParams = {
+q?: string;
+country?: string;
+organization?: string;
+industry?: string;
+dataset?: string;
+program?: string;
+sort?: DiscoverPeopleSort;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+limit?: number;
+};
+
+export type DiscoverPeopleSort = typeof DiscoverPeopleSort[keyof typeof DiscoverPeopleSort];
+
+
+export const DiscoverPeopleSort = {
+  recent: 'recent',
+  name: 'name',
+} as const;
 
 export type GetEntityCoverageParams = {
 refresh?: boolean;

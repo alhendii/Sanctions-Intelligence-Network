@@ -1,17 +1,17 @@
 import { useMemo, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
-  Activity, ArrowRight, BookOpen, Building2, CalendarClock, CheckCircle2, ChevronDown, ChevronRight, CircleAlert,
+  Activity, ArrowRight, BookOpen, BriefcaseBusiness, Building2, CalendarClock, CheckCircle2, ChevronDown, ChevronRight, CircleAlert,
   ClipboardList, Database, Download, ExternalLink, FilePlus2, FileSearch, Fingerprint, FolderOpen, GitBranch,
-  Globe2, Link2, ListChecks, Menu, Network, PanelLeft, Play, Plus, RefreshCw, Search,
+  Globe2, Link2, ListChecks, MapPin, Menu, Network, PanelLeft, Play, Plus, RefreshCw, Search,
   SlidersHorizontal, StickyNote, Upload, UserRound, X
 } from 'lucide-react';
 import {
-  getFindEntityPathQueryKey, getGetCaseQueryKey, getGetDashboardSummaryQueryKey, getGetEntityCoverageQueryKey,
+  getDiscoverPeopleQueryKey, getFindEntityPathQueryKey, getGetCaseQueryKey, getGetDashboardSummaryQueryKey, getGetEntityCoverageQueryKey,
   getGetEntityNetworkQueryKey, getGetEntityQueryKey, getGetWatchlistEventsQueryKey, getListCasesQueryKey,
   getListWatchlistsQueryKey, getSearchEntitiesQueryKey, getExportEntityNetworkQueryKey, getExportEntityQueryKey,
   useAddCaseEntity, useAddCaseNote, useAddWatchlistEntity, useBatchScreen, useCheckWatchlist, useCreateCase,
-  useCreateWatchlist, useExportBatchScreen, useExportEntity, useExportEntityNetwork, useFindEntityPath,
+  useCreateWatchlist, useDiscoverPeople, useExportBatchScreen, useExportEntity, useExportEntityNetwork, useFindEntityPath,
   useGetCase, useGetDashboardSummary, useGetEntity, useGetEntityCoverage, useGetEntityNetwork, useGetSources,
   useGetWatchlistEvents, useListCases, useListWatchlists, useSearchEntities
 } from '@workspace/api-client-react';
@@ -35,6 +35,7 @@ function CitedLedgerMark() {
 
 const navItems = [
   { href: '/', label: 'Overview', icon: Activity },
+  { href: '/discover', label: 'Discover people', icon: UserRound },
   { href: '/search', label: 'Entity search', icon: FileSearch },
   { href: '/batch', label: 'Batch screening', icon: ListChecks },
   { href: '/watchlists', label: 'Watchlists', icon: ClipboardList },
@@ -166,6 +167,111 @@ function Dashboard() {
       </div>
        <div className="ledger-callout grid items-center gap-5 border border-accent/30 bg-accent/5 p-5 sm:grid-cols-[auto_1fr_auto] sm:p-6"><span className="grid h-10 w-10 place-items-center bg-accent text-accent-foreground"><Fingerprint size={20} /></span><div><div className="text-sm font-bold">{summary.sourceStatus === 'ready' ? 'Keep the chain visible' : 'Start with public sanctions feeds'}</div><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{summary.sourceStatus === 'ready' ? 'Cited Ledger only presents relationships attached to a citation. Open a dossier to inspect every source before you write.' : 'Search starts with free OFAC SDN and consolidated feeds. Add OpenSanctions later for broader coverage and relationship expansion. No records are fabricated.'}</p></div><Link href="/search" data-testid="link-start-investigation" className="flex items-center justify-center gap-2 bg-primary px-4 py-3 text-xs font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">{summary.sourceStatus === 'ready' ? 'Start an investigation' : 'Open entity search'} <ArrowRight size={14} /></Link></div>
     </div>}
+  </div>;
+}
+
+function DiscoverySelect({ label, value, onChange, options, emptyLabel }: { label: string; value: string; onChange: (value: string) => void; options: any[]; emptyLabel?: string }) {
+  const unavailable = options.length === 0;
+  return <label className="block">
+    <span className="eyebrow mb-2 block text-muted-foreground">{label}</span>
+    <select value={value} onChange={(event) => onChange(event.target.value)} disabled={unavailable} className="h-11 w-full border border-input bg-background px-3 text-xs outline-none transition-colors focus:border-accent disabled:cursor-not-allowed disabled:opacity-55">
+      <option value="">{unavailable ? (emptyLabel || `No ${label.toLocaleLowerCase()} data`) : `All ${label.toLocaleLowerCase()}`}</option>
+      {options.map((option) => <option key={option.value} value={option.value}>{option.value} ({option.count})</option>)}
+    </select>
+  </label>;
+}
+
+function DiscoverPeoplePage() {
+  const [q, setQ] = useState('');
+  const [country, setCountry] = useState('');
+  const [organization, setOrganization] = useState('');
+  const [industry, setIndustry] = useState('');
+  const [dataset, setDataset] = useState('');
+  const [program, setProgram] = useState('');
+  const [sort, setSort] = useState<'recent' | 'name'>('recent');
+  const params = {
+    q: q.trim().length >= 2 ? q.trim() : undefined,
+    country: country || undefined,
+    organization: organization || undefined,
+    industry: industry || undefined,
+    dataset: dataset || undefined,
+    program: program || undefined,
+    sort,
+    limit: 48,
+  };
+  const discoveryQuery = useDiscoverPeople(params, { query: { queryKey: getDiscoverPeopleQueryKey(params) } });
+  const data: any = discoveryQuery.data;
+  const facets = data?.facets || { countries: [], organizations: [], industries: [], datasets: [], programs: [], roles: [] };
+  const activeFilters = [q.trim().length >= 2 && q, country, organization, industry, dataset, program].filter(Boolean).length;
+  const clearFilters = () => {
+    setQ('');
+    setCountry('');
+    setOrganization('');
+    setIndustry('');
+    setDataset('');
+    setProgram('');
+    setSort('recent');
+  };
+
+  return <div className="fade-in">
+    <PageIntro eyebrow="People discovery / source index" title="Discover people">
+      <div className="max-w-sm text-right text-xs leading-relaxed text-muted-foreground">Browse recent additions and narrow the source index by documented geography, affiliations, industry, list, or sanctions program.</div>
+    </PageIntro>
+
+    <section className="ledger-surface mb-8 overflow-hidden border border-border bg-card">
+      <div className="grid border-b hairline lg:grid-cols-[minmax(260px,1fr)_auto]">
+        <label className="flex min-w-0 items-center gap-3 px-5 py-4">
+          <Search size={17} className="shrink-0 text-accent" />
+          <input value={q} onChange={(event) => setQ(event.target.value)} placeholder="Search a person, country, role, or program" data-testid="input-discover-people" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/60" />
+        </label>
+        <div className="flex items-center justify-between gap-5 border-t hairline px-5 py-3 lg:border-l lg:border-t-0">
+          <div className="font-data text-[10px] uppercase tracking-wider text-muted-foreground">{activeFilters} active filters</div>
+          <button type="button" onClick={clearFilters} disabled={!activeFilters && sort === 'recent'} data-testid="button-clear-discovery-filters" className="text-[11px] font-bold text-accent hover:underline disabled:cursor-not-allowed disabled:text-muted-foreground/50 disabled:no-underline">Reset all</button>
+        </div>
+      </div>
+      <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+        <DiscoverySelect label="Countries" value={country} onChange={setCountry} options={facets.countries} />
+        <DiscoverySelect label="Organizations" value={organization} onChange={setOrganization} options={facets.organizations} emptyLabel="No structured organizations" />
+        <DiscoverySelect label="Industries" value={industry} onChange={setIndustry} options={facets.industries} emptyLabel="No structured industries" />
+        <DiscoverySelect label="Datasets" value={dataset} onChange={setDataset} options={facets.datasets} />
+        <DiscoverySelect label="Programs" value={program} onChange={setProgram} options={facets.programs} />
+        <label className="block">
+          <span className="eyebrow mb-2 block text-muted-foreground">Order</span>
+          <select value={sort} onChange={(event) => setSort(event.target.value as 'recent' | 'name')} className="h-11 w-full border border-input bg-background px-3 text-xs outline-none focus:border-accent" data-testid="select-discovery-sort">
+            <option value="recent">Newest additions</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </label>
+      </div>
+      {(!facets.organizations.length || !facets.industries.length) && <div className="border-t hairline px-5 py-3 text-[10px] leading-relaxed text-muted-foreground">Organization and industry filters activate only when those structured fields are supplied by a cited source. Cited Ledger does not infer them from names or narrative remarks.</div>}
+    </section>
+
+    {discoveryQuery.isLoading && <LoadingBlock rows={6} />}
+    {discoveryQuery.isError && <ErrorBlock message="The people discovery index could not be loaded." retry={() => discoveryQuery.refetch()} />}
+    {data && !discoveryQuery.isLoading && <section>
+      <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+        <div><div className="eyebrow text-accent">{sort === 'recent' ? 'Recent additions' : 'People directory'}</div><h2 className="mt-1 font-display text-3xl tracking-[-.035em]">{data.total.toLocaleString()} documented people</h2></div>
+        <div className="font-data text-[10px] text-muted-foreground">SHOWING {data.items.length} / {data.total.toLocaleString()}</div>
+      </div>
+      {!data.items.length && <div className="scan-grid flex min-h-[280px] flex-col items-center justify-center border border-dashed border-border px-6 text-center" data-testid="status-empty-discovery"><UserRound size={24} className="mb-4 text-accent" /><h3 className="font-display text-2xl">No people match these filters</h3><p className="mt-2 max-w-sm text-xs leading-relaxed text-muted-foreground">Reset one or more filters. An empty result is not a negative finding.</p></div>}
+      {!!data.items.length && <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" data-testid="discover-people-results">
+        {data.items.map((person: any) => <article key={person.id} className="ledger-surface group border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-accent/50" data-testid={`card-discover-person-${person.id}`}>
+          <div className="flex items-start justify-between gap-4">
+            <SchemaMark schemaType={person.schemaType} size={42} />
+            <span className="border border-accent/25 bg-accent/5 px-2 py-1 font-data text-[9px] uppercase tracking-wider text-accent">Added {new Date(person.addedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+          </div>
+          <h3 className="mt-5 font-display text-[1.55rem] leading-[1.05] tracking-[-.035em] group-hover:text-accent">{person.name}</h3>
+          <div className="mt-3 flex min-h-5 flex-wrap gap-x-4 gap-y-2 text-[10px] text-muted-foreground">
+            {!!person.countries.length && <span className="inline-flex items-center gap-1"><MapPin size={11} /> {person.countries.slice(0, 2).join(', ')}</span>}
+            {!!person.roles.length && <span className="inline-flex items-center gap-1"><BriefcaseBusiness size={11} /> {person.roles[0]}</span>}
+          </div>
+          {!!person.organizations.length && <div className="mt-4 border-l-2 border-accent/40 pl-3 text-[11px] leading-relaxed"><span className="font-semibold">Organization:</span> {person.organizations.slice(0, 2).join(', ')}</div>}
+          {!!person.industries.length && <div className="mt-2 border-l-2 border-primary/30 pl-3 text-[11px] leading-relaxed"><span className="font-semibold">Industry:</span> {person.industries.slice(0, 2).join(', ')}</div>}
+          <div className="mt-5 flex flex-wrap gap-2">{person.programs.slice(0, 2).map((item: string) => <DatasetPill key={item}>{item}</DatasetPill>)}{person.datasets.slice(0, 1).map((item: string) => <DatasetPill key={item}>{item}</DatasetPill>)}</div>
+          <div className="mt-5 flex items-center justify-between border-t hairline pt-4"><span className="font-data text-[9px] text-muted-foreground">{person.id}</span><Link href={`/entities/${person.id}`} className="inline-flex items-center gap-1 text-[11px] font-bold text-accent">Open dossier <ArrowRight size={12} /></Link></div>
+        </article>)}
+      </div>}
+    </section>}
   </div>;
 }
 
@@ -441,7 +547,7 @@ function PathResultView({ result }: { result: any }) {
 
 function Router() {
   const [route] = useLocation();
-  return <AppShell><ErrorBoundary resetKey={route}><Switch><Route path="/" component={Dashboard} /><Route path="/search" component={SearchPage} /><Route path="/batch" component={BatchPage} /><Route path="/watchlists" component={WatchlistsPage} /><Route path="/cases/:id" component={CaseDetailPage} /><Route path="/cases" component={CasesPage} /><Route path="/sources" component={SourcesPage} /><Route path="/entities/:id" component={EntityPage} /><Route path="/paths" component={PathsPage} /><Route component={NotFound} /></Switch></ErrorBoundary></AppShell>;
+  return <AppShell><ErrorBoundary resetKey={route}><Switch><Route path="/" component={Dashboard} /><Route path="/discover" component={DiscoverPeoplePage} /><Route path="/search" component={SearchPage} /><Route path="/batch" component={BatchPage} /><Route path="/watchlists" component={WatchlistsPage} /><Route path="/cases/:id" component={CaseDetailPage} /><Route path="/cases" component={CasesPage} /><Route path="/sources" component={SourcesPage} /><Route path="/entities/:id" component={EntityPage} /><Route path="/paths" component={PathsPage} /><Route component={NotFound} /></Switch></ErrorBoundary></AppShell>;
 }
 
 function App() {

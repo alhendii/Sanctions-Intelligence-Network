@@ -47,6 +47,73 @@ export const GetDashboardSummaryResponse = zod.object({
 
 
 /**
+ * @summary Discover recently added people with source-backed facets
+ */
+export const discoverPeopleQuerySortDefault = `recent`;
+export const discoverPeopleQueryLimitDefault = 24;
+export const discoverPeopleQueryLimitMax = 100;
+
+
+
+export const DiscoverPeopleQueryParams = zod.object({
+  "q": zod.coerce.string().optional(),
+  "country": zod.coerce.string().optional(),
+  "organization": zod.coerce.string().optional(),
+  "industry": zod.coerce.string().optional(),
+  "dataset": zod.coerce.string().optional(),
+  "program": zod.coerce.string().optional(),
+  "sort": zod.enum(['recent', 'name']).default(discoverPeopleQuerySortDefault),
+  "limit": zod.coerce.number().min(1).max(discoverPeopleQueryLimitMax).default(discoverPeopleQueryLimitDefault)
+})
+
+export const DiscoverPeopleResponse = zod.object({
+  "items": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "schemaType": zod.string(),
+  "aliases": zod.array(zod.string()),
+  "datasets": zod.array(zod.string()),
+  "countries": zod.array(zod.string()),
+  "organizations": zod.array(zod.string()),
+  "industries": zod.array(zod.string()),
+  "programs": zod.array(zod.string()),
+  "roles": zod.array(zod.string()),
+  "birthDate": zod.string().nullish(),
+  "addedAt": zod.string(),
+  "sourceUrl": zod.string().nullish()
+})),
+  "total": zod.number(),
+  "generatedAt": zod.string(),
+  "facets": zod.object({
+  "countries": zod.array(zod.object({
+  "value": zod.string(),
+  "count": zod.number()
+})),
+  "organizations": zod.array(zod.object({
+  "value": zod.string(),
+  "count": zod.number()
+})),
+  "industries": zod.array(zod.object({
+  "value": zod.string(),
+  "count": zod.number()
+})),
+  "datasets": zod.array(zod.object({
+  "value": zod.string(),
+  "count": zod.number()
+})),
+  "programs": zod.array(zod.object({
+  "value": zod.string(),
+  "count": zod.number()
+})),
+  "roles": zod.array(zod.object({
+  "value": zod.string(),
+  "count": zod.number()
+}))
+})
+})
+
+
+/**
  * @summary List supported public intelligence sources
  */
 export const GetSourcesResponseItem = zod.object({
