@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { db, entitiesTable } from "@workspace/db";
+import { db, entitiesTable, type SourceCitation } from "@workspace/db";
 
 type CachedSearchEntity = {
   id: string;
@@ -8,7 +8,7 @@ type CachedSearchEntity = {
   aliases: string[];
   datasets: string[];
   properties: Record<string, string[]>;
-  sources: Array<{ title: string; url: string; publisher: string }>;
+  sources: SourceCitation[];
   sourceUpdatedAt: Date | null;
   matchScore: number;
   matchReasons: Array<{ label: string; detail: string }>;
@@ -87,8 +87,13 @@ export async function searchCachedEntities(query: string, limit: number): Promis
       datasets: Array.isArray(row.datasets) ? row.datasets.map(String) : [],
       properties: (row.properties ?? {}) as Record<string, string[]>,
       sources: Array.isArray(row.sources) ? row.sources.map((source) => {
-        const item = source as { title?: string; url?: string; publisher?: string | null };
-        return { title: item.title ?? "Source record", url: item.url ?? "", publisher: item.publisher ?? "Public source" };
+        const item = source as Partial<SourceCitation>;
+        return {
+          ...item,
+          title: item.title ?? "Source record",
+          url: item.url ?? "",
+          publisher: item.publisher ?? "Public source",
+        };
       }) : [],
       sourceUpdatedAt: row.sourceUpdatedAt instanceof Date ? row.sourceUpdatedAt : null,
       matchScore: score,

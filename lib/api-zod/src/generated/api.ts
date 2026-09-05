@@ -124,10 +124,21 @@ export const GetSourcesResponseItem = zod.object({
   "url": zod.string(),
   "mode": zod.string(),
   "status": zod.string(),
-  "category": zod.enum(['sanctions', 'pep', 'adverse_media', 'corporate_registry', 'investigative_database']),
+  "category": zod.enum(['sanctions', 'sanctions_notice', 'court_proceeding', 'investigation', 'pep', 'adverse_media', 'corporate_registry', 'investigative_database']),
+  "jurisdiction": zod.string(),
+  "sourceStatus": zod.enum(['official', 'normalized', 'journalistic', 'unverified_context']),
   "description": zod.string()
 })
 export const GetSourcesResponse = zod.array(GetSourcesResponseItem)
+
+
+/**
+ * @summary Sync supported official XML source feeds
+ */
+export const SyncSourcesResponse = zod.object({
+  "entityCount": zod.number(),
+  "feedIds": zod.array(zod.string())
+})
 
 
 /**
@@ -460,7 +471,14 @@ export const GetEntityResponse = zod.object({
   "sources": zod.array(zod.object({
   "title": zod.string(),
   "url": zod.string(),
-  "publisher": zod.string().nullish()
+  "publisher": zod.string().nullish(),
+  "category": zod.enum(['sanctions', 'sanctions_notice', 'court_proceeding', 'investigation', 'pep', 'adverse_media', 'corporate_registry', 'investigative_database']).optional(),
+  "jurisdiction": zod.string().nullish(),
+  "sourceStatus": zod.enum(['official', 'normalized', 'journalistic', 'unverified_context', 'investigator_note']).optional(),
+  "publishedAt": zod.string().nullish(),
+  "updatedAt": zod.string().nullish(),
+  "measureType": zod.string().nullish(),
+  "legalStatus": zod.string().nullish()
 }))
 })
 
@@ -497,9 +515,18 @@ export const GetEntityNetworkResponse = zod.object({
   "citation": zod.object({
   "title": zod.string(),
   "url": zod.string(),
-  "publisher": zod.string().nullish()
+  "publisher": zod.string().nullish(),
+  "category": zod.enum(['sanctions', 'sanctions_notice', 'court_proceeding', 'investigation', 'pep', 'adverse_media', 'corporate_registry', 'investigative_database']).optional(),
+  "jurisdiction": zod.string().nullish(),
+  "sourceStatus": zod.enum(['official', 'normalized', 'journalistic', 'unverified_context', 'investigator_note']).optional(),
+  "publishedAt": zod.string().nullish(),
+  "updatedAt": zod.string().nullish(),
+  "measureType": zod.string().nullish(),
+  "legalStatus": zod.string().nullish()
 })
-}))
+})),
+  "sourceStatus": zod.enum(['available', 'setup_required', 'unavailable']).optional(),
+  "message": zod.string().nullish()
 })
 
 
@@ -528,7 +555,14 @@ export const FindEntityPathResponse = zod.object({
   "citation": zod.object({
   "title": zod.string(),
   "url": zod.string(),
-  "publisher": zod.string().nullish()
+  "publisher": zod.string().nullish(),
+  "category": zod.enum(['sanctions', 'sanctions_notice', 'court_proceeding', 'investigation', 'pep', 'adverse_media', 'corporate_registry', 'investigative_database']).optional(),
+  "jurisdiction": zod.string().nullish(),
+  "sourceStatus": zod.enum(['official', 'normalized', 'journalistic', 'unverified_context', 'investigator_note']).optional(),
+  "publishedAt": zod.string().nullish(),
+  "updatedAt": zod.string().nullish(),
+  "measureType": zod.string().nullish(),
+  "legalStatus": zod.string().nullish()
 })
 }))
 })

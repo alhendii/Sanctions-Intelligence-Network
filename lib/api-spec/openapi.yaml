@@ -97,6 +97,18 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/FeedSource"
+  /sources/sync:
+    post:
+      operationId: syncSources
+      tags: [intelligence]
+      summary: Sync supported official XML source feeds
+      responses:
+        "200":
+          description: Source synchronization result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SourceSyncResponse"
   /entities/{id}/coverage:
     get:
       operationId: getEntityCoverage
@@ -586,6 +598,22 @@ components:
         url: { type: string }
         publisher:
           type: ["string", "null"]
+        category:
+          type: string
+          enum: [sanctions, sanctions_notice, court_proceeding, investigation, pep, adverse_media, corporate_registry, investigative_database]
+        jurisdiction:
+          type: ["string", "null"]
+        sourceStatus:
+          type: string
+          enum: [official, normalized, journalistic, unverified_context, investigator_note]
+        publishedAt:
+          type: ["string", "null"]
+        updatedAt:
+          type: ["string", "null"]
+        measureType:
+          type: ["string", "null"]
+        legalStatus:
+          type: ["string", "null"]
     NetworkNode:
       type: object
       required: [id, label, schemaType, depth]
@@ -619,6 +647,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/NetworkEdge"
+        sourceStatus:
+          type: string
+          enum: [available, setup_required, unavailable]
+        message:
+          type: ["string", "null"]
     PathResult:
       type: object
       required: [found, nodes, edges]
@@ -657,7 +690,7 @@ components:
           type: ["string", "null"]
     FeedSource:
       type: object
-      required: [id, name, publisher, format, url, mode, status, category, description]
+      required: [id, name, publisher, format, url, mode, status, category, jurisdiction, sourceStatus, description]
       properties:
         id: { type: string }
         name: { type: string }
@@ -668,8 +701,20 @@ components:
         status: { type: string }
         category:
           type: string
-          enum: [sanctions, pep, adverse_media, corporate_registry, investigative_database]
+          enum: [sanctions, sanctions_notice, court_proceeding, investigation, pep, adverse_media, corporate_registry, investigative_database]
+        jurisdiction: { type: string }
+        sourceStatus:
+          type: string
+          enum: [official, normalized, journalistic, unverified_context]
         description: { type: string }
+    SourceSyncResponse:
+      type: object
+      required: [entityCount, feedIds]
+      properties:
+        entityCount: { type: number }
+        feedIds:
+          type: array
+          items: { type: string }
     MatchReason:
       type: object
       required: [label, detail]

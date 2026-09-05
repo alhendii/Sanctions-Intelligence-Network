@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type FeedSourceCategory = typeof FeedSourceCategory[keyof typeof FeedSourceCategory];
+export type SourceCitationCategory = typeof SourceCitationCategory[keyof typeof SourceCitationCategory];
 
 
-export const FeedSourceCategory = {
+export const SourceCitationCategory = {
   sanctions: 'sanctions',
   sanctions_notice: 'sanctions_notice',
   court_proceeding: 'court_proceeding',

@@ -70,11 +70,48 @@ export interface DiscoverPeopleResponse {
 
 export type EntityProperties = {[key: string]: string[]};
 
+export type SourceCitationCategory = typeof SourceCitationCategory[keyof typeof SourceCitationCategory];
+
+
+export const SourceCitationCategory = {
+  sanctions: 'sanctions',
+  sanctions_notice: 'sanctions_notice',
+  court_proceeding: 'court_proceeding',
+  investigation: 'investigation',
+  pep: 'pep',
+  adverse_media: 'adverse_media',
+  corporate_registry: 'corporate_registry',
+  investigative_database: 'investigative_database',
+} as const;
+
+export type SourceCitationSourceStatus = typeof SourceCitationSourceStatus[keyof typeof SourceCitationSourceStatus];
+
+
+export const SourceCitationSourceStatus = {
+  official: 'official',
+  normalized: 'normalized',
+  journalistic: 'journalistic',
+  unverified_context: 'unverified_context',
+  investigator_note: 'investigator_note',
+} as const;
+
 export interface SourceCitation {
   title: string;
   url: string;
   /** @nullable */
   publisher?: string | null;
+  category?: SourceCitationCategory;
+  /** @nullable */
+  jurisdiction?: string | null;
+  sourceStatus?: SourceCitationSourceStatus;
+  /** @nullable */
+  publishedAt?: string | null;
+  /** @nullable */
+  updatedAt?: string | null;
+  /** @nullable */
+  measureType?: string | null;
+  /** @nullable */
+  legalStatus?: string | null;
 }
 
 export interface Entity {
@@ -103,9 +140,21 @@ export interface NetworkEdge {
   citation: SourceCitation;
 }
 
+export type NetworkGraphSourceStatus = typeof NetworkGraphSourceStatus[keyof typeof NetworkGraphSourceStatus];
+
+
+export const NetworkGraphSourceStatus = {
+  available: 'available',
+  setup_required: 'setup_required',
+  unavailable: 'unavailable',
+} as const;
+
 export interface NetworkGraph {
   nodes: NetworkNode[];
   edges: NetworkEdge[];
+  sourceStatus?: NetworkGraphSourceStatus;
+  /** @nullable */
+  message?: string | null;
 }
 
 export interface PathResult {
@@ -142,10 +191,23 @@ export type FeedSourceCategory = typeof FeedSourceCategory[keyof typeof FeedSour
 
 export const FeedSourceCategory = {
   sanctions: 'sanctions',
+  sanctions_notice: 'sanctions_notice',
+  court_proceeding: 'court_proceeding',
+  investigation: 'investigation',
   pep: 'pep',
   adverse_media: 'adverse_media',
   corporate_registry: 'corporate_registry',
   investigative_database: 'investigative_database',
+} as const;
+
+export type FeedSourceSourceStatus = typeof FeedSourceSourceStatus[keyof typeof FeedSourceSourceStatus];
+
+
+export const FeedSourceSourceStatus = {
+  official: 'official',
+  normalized: 'normalized',
+  journalistic: 'journalistic',
+  unverified_context: 'unverified_context',
 } as const;
 
 export interface FeedSource {
@@ -157,7 +219,14 @@ export interface FeedSource {
   mode: string;
   status: string;
   category: FeedSourceCategory;
+  jurisdiction: string;
+  sourceStatus: FeedSourceSourceStatus;
   description: string;
+}
+
+export interface SourceSyncResponse {
+  entityCount: number;
+  feedIds: string[];
 }
 
 export interface CoverageItem {

@@ -1,6 +1,6 @@
-# Ledgerline — Sanctions Intelligence Network
+# Cited Ledger — Sanctions Intelligence Network
 
-Ledgerline is a source-first OSINT workspace for searching sanctioned entities and tracing cited relationships.
+Cited Ledger is a source-first OSINT workspace for searching sanctioned entities and tracing cited relationships.
 
 ## Run & Operate
 
@@ -34,13 +34,13 @@ Ledgerline is a source-first OSINT workspace for searching sanctioned entities a
 
 - OpenSanctions is the preferred relationship source, while official OFAC SDN and Consolidated XML feeds provide a free fallback for entity search.
 - The API key stays server-side in `OPEN_SANCTIONS_API_KEY`; the browser only talks to the shared API server.
-- EU, UN, UK, ICIJ, OCCRP, and state-registry sources are exposed as discovery links until their formats, licensing, and update behavior are independently validated.
+- Official sanctions lists, dated sanctions notices, international court indexes, investigations, corporate registries, ICIJ, OCCRP, GDELT, and Google News remain source-labeled and separate when formats or legal status differ.
 - Search results and relationship records are cached in Postgres to reduce repeated upstream requests and preserve a local research trail.
 - Relationship confidence is represented explicitly and citations are returned with every graph edge.
 
 ## Product
 
-Ledgerline provides a dashboard overview, fuzzy name search, source-backed entity dossiers, an official source registry, expandable relationship context, and shortest-path tracing between two entities.
+Cited Ledger provides a dashboard overview, fuzzy name search, source-backed entity dossiers, an official source registry, expandable relationship context, international justice reference links, and shortest-path tracing between two entities.
 
 ## User preferences
 

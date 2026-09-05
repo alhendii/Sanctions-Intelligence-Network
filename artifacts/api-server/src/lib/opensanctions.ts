@@ -1,5 +1,5 @@
 import { and, desc, eq, sql } from "drizzle-orm";
-import { db, edgesTable, entitiesTable, type Entity, type Edge } from "@workspace/db";
+import { db, edgesTable, entitiesTable, type Entity, type Edge, type SourceCitation } from "@workspace/db";
 import { searchFreeFeedEntities } from "./free-feeds";
 import { getCorporateNetwork } from "./corporate";
 
@@ -56,17 +56,23 @@ function scalarValues(properties: RawEntity["properties"], keys: string[]): stri
   return [];
 }
 
-function sourceFor(id: string, datasets: string[], label: string) {
+function sourceFor(id: string, datasets: string[], label: string): SourceCitation[] {
   return [
     {
       title: label,
       url: `${ENTITY_URL}/${encodeURIComponent(id)}/`,
       publisher: "OpenSanctions",
+      category: "sanctions",
+      jurisdiction: null,
+      sourceStatus: "normalized",
     },
     ...datasets.slice(0, 3).map((dataset) => ({
       title: dataset,
       url: `https://www.opensanctions.org/datasets/${encodeURIComponent(dataset)}/`,
       publisher: "OpenSanctions",
+      category: "sanctions" as const,
+      jurisdiction: null,
+      sourceStatus: "normalized" as const,
     })),
   ];
 }
@@ -78,7 +84,7 @@ function normalizeEntity(raw: RawEntity): {
   aliases: string[];
   datasets: string[];
   properties: Record<string, string[]>;
-  sources: Array<{ title: string; url: string; publisher: string }>;
+  sources: SourceCitation[];
   sourceUpdatedAt: Date | null;
 } {
   const datasets = raw.datasets ?? [];
@@ -188,8 +194,7 @@ export async function getSanctionsEntity(id: string): Promise<ReturnType<typeof 
       datasets: cached[0].datasets,
       properties: cached[0].properties,
       sources: cached[0].sources.map((source) => ({
-        title: source.title,
-        url: source.url,
+        ...source,
         publisher: source.publisher ?? "OpenSanctions",
       })),
       sourceUpdatedAt: cached[0].sourceUpdatedAt,
@@ -205,9 +210,18 @@ function adjacentEntity(value: string | RawEntity): RawEntity | null {
   return typeof value === "string" ? null : value;
 }
 
-export async function getSanctionsNetwork(id: string, depth: number): Promise<{ nodes: Array<{ id: string; label: string; schemaType: string; depth: number; datasets: string[] }>; edges: Array<{ source: string; target: string; relationshipType: string; confidence: string; citation: { title: string; url: string; publisher: string } }> }> {
+export async function getSanctionsNetwork(id: string, depth: number): Promise<{ nodes: Array<{ id: string; label: string; schemaType: string; depth: number; datasets: string[] }>; edges: Array<{ source: string; target: string; relationshipType: string; confidence: string; citation: SourceCitation }>; sourceStatus?: "available" | "setup_required" | "unavailable"; message?: string | null }> {
   if (id.startsWith("gleif:")) {
     return getCorporateNetwork(id);
+  }
+  if (!process.env.OPEN_SANCTIONS_API_KEY) {
+    const root = await getSanctionsEntity(id);
+    return {
+      nodes: [{ id: root.id, label: root.name, schemaType: root.schemaType, depth: 0, datasets: root.datasets }],
+      edges: [],
+      sourceStatus: "setup_required",
+      message: "Relationship expansion requires an OpenSanctions API key. Cached public-feed records remain available.",
+    };
   }
   const root = await getSanctionsEntity(id);
   const nodes = new Map<string, { id: string; label: string; schemaType: string; depth: number; datasets: string[] }>([

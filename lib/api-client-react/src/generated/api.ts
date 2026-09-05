@@ -48,6 +48,7 @@ import type {
   PathResult,
   ResearchCase,
   SearchEntitiesParams,
+  SourceSyncResponse,
   WatchEvent,
   Watchlist,
   WatchlistEntity,
@@ -396,6 +397,77 @@ export function useGetSources<TData = Awaited<ReturnType<typeof getSources>>, TE
 
 
 
+
+export const getSyncSourcesUrl = () => {
+
+
+
+
+  return `/api/sources/sync`
+}
+
+/**
+ * @summary Sync supported official XML source feeds
+ */
+export const syncSources = async ( options?: Parameters<typeof customFetch>[1]): Promise<SourceSyncResponse> => {
+
+  return customFetch<SourceSyncResponse>(getSyncSourcesUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getSyncSourcesMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof syncSources>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof syncSources>>, TError,void, TContext> => {
+
+const mutationKey = ['syncSources'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof syncSources>>, void> = () => {
+
+
+          return  syncSources(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SyncSourcesMutationResult = NonNullable<Awaited<ReturnType<typeof syncSources>>>
+
+    export type SyncSourcesMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Sync supported official XML source feeds
+ */
+export const useSyncSources = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof syncSources>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof syncSources>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getSyncSourcesMutationOptions(options));
+    }
 
 export const getGetEntityCoverageUrl = (id: string,
     params?: GetEntityCoverageParams,) => {

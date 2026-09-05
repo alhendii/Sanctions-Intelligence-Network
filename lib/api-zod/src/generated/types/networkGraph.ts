@@ -6,9 +6,13 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { NetworkEdge } from './networkEdge';
+import type { NetworkGraphSourceStatus } from './networkGraphSourceStatus';
 import type { NetworkNode } from './networkNode';
 
 export interface NetworkGraph {
   nodes: NetworkNode[];
   edges: NetworkEdge[];
+  sourceStatus?: NetworkGraphSourceStatus;
+  /** @nullable */
+  message?: string | null;
 }

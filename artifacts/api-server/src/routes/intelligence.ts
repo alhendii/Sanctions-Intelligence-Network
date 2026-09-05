@@ -37,6 +37,7 @@ import {
   SearchEntitiesResponse,
   DiscoverPeopleQueryParams,
   DiscoverPeopleResponse,
+  SyncSourcesResponse,
 } from "@workspace/api-zod";
 import {
   findPath,
@@ -47,7 +48,7 @@ import {
   resolveEntityId,
   searchSanctions,
 } from "../lib/opensanctions";
-import { getFreeFeedCatalog } from "../lib/free-feeds";
+import { getFreeFeedCatalog, syncFreeFeeds } from "../lib/free-feeds";
 import { getEntityCoverage } from "../lib/coverage";
 import {
   addCaseEntity,
@@ -100,6 +101,16 @@ router.get("/discover/people", async (req, res): Promise<void> => {
 router.get("/sources", async (req, res): Promise<void> => {
   try {
     res.json(await getFreeFeedCatalog());
+  } catch (error) {
+    handleError(req, res, error);
+  }
+});
+
+router.post("/sources/sync", async (req, res): Promise<void> => {
+  try {
+    const feedIds = ["ofac_sdn", "ofac_consolidated", "un_consolidated", "ca_autonomous_consolidated"];
+    const result = await syncFreeFeeds(feedIds);
+    res.json(SyncSourcesResponse.parse(result));
   } catch (error) {
     handleError(req, res, error);
   }

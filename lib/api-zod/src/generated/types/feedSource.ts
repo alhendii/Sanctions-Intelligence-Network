@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { FeedSourceCategory } from './feedSourceCategory';
+import type { FeedSourceSourceStatus } from './feedSourceSourceStatus';
 
 export interface FeedSource {
   id: string;
@@ -16,5 +17,7 @@ export interface FeedSource {
   mode: string;
   status: string;
   category: FeedSourceCategory;
+  jurisdiction: string;
+  sourceStatus: FeedSourceSourceStatus;
   description: string;
 }

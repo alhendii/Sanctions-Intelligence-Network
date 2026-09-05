@@ -5,10 +5,24 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { SourceCitationCategory } from './sourceCitationCategory';
+import type { SourceCitationSourceStatus } from './sourceCitationSourceStatus';
 
 export interface SourceCitation {
   title: string;
   url: string;
   /** @nullable */
   publisher?: string | null;
+  category?: SourceCitationCategory;
+  /** @nullable */
+  jurisdiction?: string | null;
+  sourceStatus?: SourceCitationSourceStatus;
+  /** @nullable */
+  publishedAt?: string | null;
+  /** @nullable */
+  updatedAt?: string | null;
+  /** @nullable */
+  measureType?: string | null;
+  /** @nullable */
+  legalStatus?: string | null;
 }
