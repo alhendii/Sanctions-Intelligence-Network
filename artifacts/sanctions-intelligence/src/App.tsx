@@ -41,18 +41,18 @@ function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-[100dvh] bg-background text-foreground">
       <aside className={cn(
-        'fixed inset-y-0 left-0 z-40 flex w-[252px] flex-col bg-sidebar text-sidebar-foreground transition-transform duration-300 lg:translate-x-0',
+        'fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col bg-sidebar text-sidebar-foreground transition-transform duration-300 lg:translate-x-0',
         mobileOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
-        <div className="flex h-[76px] items-center justify-between border-b border-sidebar-border px-6">
-          <Link href="/" data-testid="link-brand" className="flex items-center gap-3 text-sidebar-accent-foreground">
-            <span className="grid h-8 w-8 place-items-center bg-primary text-primary-foreground"><ShieldCheck size={18} strokeWidth={2.5} /></span>
-            <span className="font-display text-[23px] leading-none tracking-[-.03em]">Ledgerline</span>
+        <div className="flex h-[84px] items-center justify-between border-b border-sidebar-border px-6">
+          <Link href="/" data-testid="link-brand" className="ledger-brand flex items-center gap-3 text-sidebar-accent-foreground">
+            <span className="ledger-brand-mark grid h-9 w-9 place-items-center bg-primary text-primary-foreground"><ShieldCheck size={18} strokeWidth={2.5} /></span>
+            <span className="font-display text-[24px] leading-none tracking-[-.04em]">Cited Ledger</span>
           </Link>
           <button type="button" onClick={() => setMobileOpen(false)} aria-label="Close navigation" data-testid="button-close-navigation" className="rounded-md p-1 text-sidebar-foreground/60 hover:text-sidebar-accent-foreground lg:hidden"><X size={18} /></button>
         </div>
         <div className="border-b border-sidebar-border px-5 py-5">
-          <div className="eyebrow text-sidebar-foreground/45">Research workspace</div>
+          <div className="eyebrow text-sidebar-foreground/45">Evidence workspace</div>
             <div className="mt-2 flex items-center gap-2 text-[12px] text-sidebar-foreground/75"><span className="pulse-dot h-1.5 w-1.5 rounded-full bg-primary" /> Public sanctions sources <span className="font-data text-[10px] text-sidebar-foreground/40">SOURCE</span></div>
         </div>
         <nav className="flex-1 space-y-1 px-3 py-6" aria-label="Primary navigation">
@@ -81,24 +81,24 @@ function AppShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
       {mobileOpen && <button type="button" aria-label="Close menu overlay" data-testid="button-menu-overlay" onClick={() => setMobileOpen(false)} className="fixed inset-0 z-30 bg-sidebar/50 lg:hidden" />}
-      <div className="lg:pl-[252px]">
-        <header className="sticky top-0 z-20 flex h-[76px] items-center justify-between border-b hairline bg-background/90 px-5 backdrop-blur-md sm:px-8">
+      <div className="lg:pl-[264px]">
+        <header className="ledger-topbar sticky top-0 z-20 flex h-[82px] items-center justify-between border-b hairline bg-background/90 px-5 backdrop-blur-md sm:px-8">
           <button type="button" aria-label="Open navigation" data-testid="button-open-navigation" onClick={() => setMobileOpen(true)} className="mr-3 rounded-md p-2 hover:bg-muted lg:hidden"><Menu size={20} /></button>
-          <div className="hidden items-center gap-2 text-[11px] text-muted-foreground sm:flex"><span className="font-data text-foreground">OSINT /</span> Sanctions intelligence</div>
+          <div className="hidden items-center gap-2 text-[11px] text-muted-foreground sm:flex"><span className="font-data text-foreground">CITED LEDGER /</span> Sanctions intelligence</div>
           <div className="relative ml-auto flex items-center gap-4">
              <div className="hidden items-center gap-2 border-r hairline pr-4 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground md:flex"><span className="h-1.5 w-1.5 rounded-full bg-accent" /> Public feeds</div>
             <button type="button" aria-label="Open search" data-testid="button-header-search" onClick={() => setLocation('/search')} className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"><Search size={18} /></button>
             <button type="button" aria-label="Open profile" data-testid="button-header-profile" className="grid h-8 w-8 place-items-center rounded-full border border-border bg-card text-[10px] font-bold text-muted-foreground">JR</button>
           </div>
         </header>
-        <main className="mx-auto max-w-[1440px] px-5 py-7 sm:px-8 sm:py-10">{children}</main>
+        <main className="mx-auto max-w-[1440px] px-5 py-8 sm:px-10 sm:py-12">{children}</main>
       </div>
     </div>
   );
 }
 
 function PageIntro({ eyebrow, title, children }: { eyebrow: string; title: string; children?: ReactNode }) {
-  return <div className="mb-8 flex flex-col justify-between gap-5 border-b hairline pb-7 sm:flex-row sm:items-end">
+  return <div className="ledger-page-intro mb-8 flex flex-col justify-between gap-5 border-b hairline pb-8 sm:flex-row sm:items-end">
     <div><div className="eyebrow mb-3 text-accent">{eyebrow}</div><h1 className="font-display text-[clamp(2rem,4vw,3.15rem)] leading-[.98] tracking-[-.045em]">{title}</h1></div>
     {children}
   </div>;
@@ -134,29 +134,29 @@ function Dashboard() {
   const summaryQuery = useGetDashboardSummary({ query: { queryKey: getGetDashboardSummaryQueryKey() } });
   const summary: any = summaryQuery.data;
   return <div className="fade-in">
-    <PageIntro eyebrow="Overview / morning brief" title="The source desk"><div className="max-w-xs text-right text-xs leading-relaxed text-muted-foreground">A current view of the documented sanctions graph. Start with a name, then follow the evidence.</div></PageIntro>
+    <PageIntro eyebrow="Overview / morning brief" title="The evidence desk"><div className="max-w-xs text-right text-xs leading-relaxed text-muted-foreground">A current view of the documented sanctions graph. Start with a name, then follow the evidence.</div></PageIntro>
     {summaryQuery.isLoading && <LoadingBlock rows={5} />}
     {summaryQuery.isError && <ErrorBlock retry={() => summaryQuery.refetch()} />}
     {summary && <div className="space-y-8">
-      <section className="grid gap-px border border-border bg-border sm:grid-cols-2 xl:grid-cols-4" data-testid="section-dashboard-stats">
+       <section className="ledger-surface grid gap-px overflow-hidden border border-border bg-border sm:grid-cols-2 xl:grid-cols-4" data-testid="section-dashboard-stats">
         {[
           { label: 'Indexed entities', value: summary.totalEntities, icon: Database, note: 'Across all connected lists' },
           { label: 'Documented links', value: summary.totalEdges, icon: Network, note: 'Cited graph relationships' },
           { label: 'Active datasets', value: summary.datasets?.length ?? 0, icon: Globe2, note: 'Public source registries' },
            { label: 'Source status', value: summary.sourceStatus === 'ready' ? 'Ready' : 'Available', icon: RefreshCw, note: summary.sourceStatus === 'ready' ? (summary.cacheUpdatedAt ? `Cache updated ${new Date(summary.cacheUpdatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : 'Live source configured') : 'Free OFAC feeds ready to index' },
-        ].map((stat) => { const Icon = stat.icon; return <div key={stat.label} className="bg-card p-5 sm:p-6"><div className="mb-6 flex items-center justify-between"><span className="eyebrow text-muted-foreground">{stat.label}</span><Icon size={16} className="text-accent" /></div><div className="font-data text-[clamp(1.8rem,3vw,2.5rem)] font-medium tracking-[-.05em]">{typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}</div><div className="mt-2 text-[11px] text-muted-foreground">{stat.note}</div></div>; })}
+         ].map((stat) => { const Icon = stat.icon; return <div key={stat.label} className="ledger-stat bg-card p-5 sm:p-6"><div className="mb-6 flex items-center justify-between"><span className="eyebrow text-muted-foreground">{stat.label}</span><Icon size={16} className="text-accent" /></div><div className="font-data text-[clamp(1.8rem,3vw,2.5rem)] font-medium tracking-[-.05em]">{typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}</div><div className="mt-2 text-[11px] text-muted-foreground">{stat.note}</div></div>; })}
       </section>
       <div className="grid gap-8 xl:grid-cols-[1fr_340px]">
-        <section className="border border-border bg-card" data-testid="section-recent-entities">
+        <section className="ledger-surface border border-border bg-card" data-testid="section-recent-entities">
           <div className="flex items-center justify-between border-b hairline px-5 py-4"><div><div className="eyebrow text-accent">Recently observed</div><h2 className="mt-1 text-sm font-bold">Entities entering the desk</h2></div><Link href="/search" data-testid="link-view-all-entities" className="flex items-center gap-2 text-xs font-bold text-accent hover:underline">Search all <ArrowRight size={14} /></Link></div>
           {(summary.recentEntities || []).length ? summary.recentEntities.map((entity: any, i: number) => <EntityRow key={entity.id} entity={entity} index={i} />) : <div className="p-8 text-center text-sm text-muted-foreground" data-testid="status-empty-recent">No recent entities in this cache.</div>}
         </section>
-        <section className="border border-border bg-card" data-testid="section-datasets">
+        <section className="ledger-surface border border-border bg-card" data-testid="section-datasets">
           <div className="border-b hairline px-5 py-4"><div className="eyebrow text-accent">Coverage map</div><h2 className="mt-1 text-sm font-bold">Connected datasets</h2></div>
           <div className="p-5">{(summary.datasets || []).map((dataset: any, i: number) => <div key={dataset.name} className="mb-5 last:mb-0"><div className="mb-2 flex justify-between gap-4 text-xs"><span className="font-semibold">{dataset.name}</span><span className="font-data text-muted-foreground">{dataset.count.toLocaleString()}</span></div><div className="h-1 bg-muted"><div className="h-full bg-accent" style={{ width: `${Math.max(8, Math.min(100, (dataset.count / Math.max(...summary.datasets.map((d: any) => d.count), 1)) * 100))}%` }} /></div></div>)}</div>
         </section>
       </div>
-       <div className="grid items-center gap-5 border border-accent/30 bg-accent/5 p-5 sm:grid-cols-[auto_1fr_auto] sm:p-6"><span className="grid h-10 w-10 place-items-center bg-accent text-accent-foreground"><Fingerprint size={20} /></span><div><div className="text-sm font-bold">{summary.sourceStatus === 'ready' ? 'Keep the chain visible' : 'Start with public sanctions feeds'}</div><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{summary.sourceStatus === 'ready' ? 'Ledgerline only presents relationships attached to a citation. Open a dossier to inspect every source before you write.' : 'Search starts with free OFAC SDN and consolidated feeds. Add OpenSanctions later for broader coverage and relationship expansion. No records are fabricated.'}</p></div><Link href="/search" data-testid="link-start-investigation" className="flex items-center justify-center gap-2 bg-primary px-4 py-3 text-xs font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">{summary.sourceStatus === 'ready' ? 'Start an investigation' : 'Open entity search'} <ArrowRight size={14} /></Link></div>
+       <div className="ledger-callout grid items-center gap-5 border border-accent/30 bg-accent/5 p-5 sm:grid-cols-[auto_1fr_auto] sm:p-6"><span className="grid h-10 w-10 place-items-center bg-accent text-accent-foreground"><Fingerprint size={20} /></span><div><div className="text-sm font-bold">{summary.sourceStatus === 'ready' ? 'Keep the chain visible' : 'Start with public sanctions feeds'}</div><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{summary.sourceStatus === 'ready' ? 'Cited Ledger only presents relationships attached to a citation. Open a dossier to inspect every source before you write.' : 'Search starts with free OFAC SDN and consolidated feeds. Add OpenSanctions later for broader coverage and relationship expansion. No records are fabricated.'}</p></div><Link href="/search" data-testid="link-start-investigation" className="flex items-center justify-center gap-2 bg-primary px-4 py-3 text-xs font-bold text-primary-foreground transition-transform hover:-translate-y-0.5">{summary.sourceStatus === 'ready' ? 'Start an investigation' : 'Open entity search'} <ArrowRight size={14} /></Link></div>
     </div>}
   </div>;
 }
@@ -193,11 +193,11 @@ function SourcesPage() {
   const sourcesQuery = useGetSources({ query: { queryKey: ['/api/sources'] } });
   const sources: any[] = sourcesQuery.data || [];
   return <div className="fade-in">
-    <PageIntro eyebrow="Source registry / public access" title="Know where it came from"><div className="max-w-xs text-right text-xs leading-relaxed text-muted-foreground">Free public feeds and investigative databases Ledgerline can cite without inventing a unified source.</div></PageIntro>
+    <PageIntro eyebrow="Source registry / public access" title="Know where it came from"><div className="max-w-xs text-right text-xs leading-relaxed text-muted-foreground">Free public feeds and investigative databases Cited Ledger can cite without inventing a unified source.</div></PageIntro>
     {sourcesQuery.isLoading && <LoadingBlock rows={6} />}
     {sourcesQuery.isError && <ErrorBlock message="The source registry could not be loaded." retry={() => sourcesQuery.refetch()} />}
     {!!sources.length && <div className="grid gap-4 lg:grid-cols-2" data-testid="source-registry">
-       {sources.map((source) => <article key={source.id} className="border border-border bg-card p-5 sm:p-6" data-testid={`source-card-${source.id}`}>
+       {sources.map((source) => <article key={source.id} className="ledger-surface border border-border bg-card p-5 sm:p-6" data-testid={`source-card-${source.id}`}>
          <div className="flex items-start justify-between gap-4"><div><div className="eyebrow text-accent">{source.publisher}</div><h2 className="mt-2 font-display text-2xl leading-none tracking-[-.03em]">{source.name}</h2></div><div className="flex shrink-0 flex-col items-end gap-2"><span className={cn('border px-2 py-1 font-data text-[9px] uppercase tracking-wider', source.status === 'indexed' ? 'border-accent/40 bg-accent/10 text-accent' : source.mode === 'automatic' ? 'border-primary/30 bg-primary/10 text-primary' : 'border-border bg-muted text-muted-foreground')}>{source.status === 'indexed' ? 'Indexed' : source.mode === 'automatic' ? 'Auto feed' : source.status === 'setup_required' ? 'Setup required' : 'Discovery'}</span><span className="font-data text-[9px] uppercase tracking-wider text-muted-foreground">{String(source.category || 'source').replaceAll('_', ' ')}</span></div></div>
         <p className="mt-4 text-xs leading-relaxed text-muted-foreground">{source.description}</p>
         <div className="mt-5 flex items-center justify-between gap-4 border-t hairline pt-4"><span className="font-data text-[10px] uppercase tracking-wider text-muted-foreground">{source.format}</span><a href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[11px] font-bold text-accent hover:underline" data-testid={`link-source-registry-${source.id}`}>Official source <ExternalLink size={12} /></a></div>
@@ -223,8 +223,8 @@ function EntityPage() {
   const graph: any = networkQuery.data;
   const coverage: any = coverageQuery.data;
   const propertyEntries = entity ? Object.entries(entity.properties || {}) : [];
-  const exportEntityFile = async () => { const response = await entityExportQuery.refetch(); if (response.data) downloadBlob(response.data, `ledgerline-${id}.${entityExportFormat}`); };
-  const exportNetworkFile = async () => { const response = await networkExportQuery.refetch(); if (response.data) downloadBlob(response.data, `ledgerline-${id}-network.${networkExportFormat}`); };
+  const exportEntityFile = async () => { const response = await entityExportQuery.refetch(); if (response.data) downloadBlob(response.data, `cited-ledger-${id}.${entityExportFormat}`); };
+  const exportNetworkFile = async () => { const response = await networkExportQuery.refetch(); if (response.data) downloadBlob(response.data, `cited-ledger-${id}-network.${networkExportFormat}`); };
   return <div className="fade-in">
     <div className="mb-6 flex items-center gap-2 text-[11px] text-muted-foreground"><Link href="/search" data-testid="link-back-search" className="hover:text-accent">Entity search</Link><ChevronRight size={13} /><span className="truncate">{entity?.name || id}</span></div>
     {entityQuery.isLoading && <LoadingBlock rows={4} />}
@@ -293,7 +293,7 @@ function BatchPage() {
   const exportResults = (format: 'csv' | 'json' | 'pdf') => {
     if (!result?.items?.length) return;
     exportMutation.mutate({ data: { items: result.items, format } }, {
-      onSuccess: (blob) => downloadBlob(blob, `ledgerline-batch-${format}.${format === 'pdf' ? 'pdf' : format}`),
+      onSuccess: (blob) => downloadBlob(blob, `cited-ledger-batch-${format}.${format === 'pdf' ? 'pdf' : format}`),
     });
   };
   const unavailable = result?.items?.filter((item: any) => item.status !== 'matched' && item.status !== 'complete' && !item.matches?.length).length || 0;
@@ -304,7 +304,7 @@ function BatchPage() {
         <div className="mb-5 flex items-start justify-between gap-4"><div><div className="eyebrow text-accent">01 / intake</div><h2 className="mt-1 text-sm font-bold">Names to screen</h2></div><label className="inline-flex cursor-pointer items-center gap-2 border border-border px-3 py-2 text-[10px] font-bold text-muted-foreground transition-colors hover:border-accent hover:text-accent"><Upload size={13} /> Upload CSV<input type="file" accept=".csv,text/csv" className="sr-only" onChange={readFile} data-testid="input-batch-file" /></label></div>
         <textarea value={csv} onChange={(event) => setCsv(event.target.value)} placeholder={"Name, country\nMariya Petrov\nNorthstar Holdings"} data-testid="input-batch-names" className="min-h-[250px] w-full resize-y border border-input bg-background p-4 font-data text-xs leading-6 outline-none transition-colors placeholder:font-sans placeholder:text-muted-foreground/55 focus:border-accent focus:ring-2 focus:ring-accent/15" />
         <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end"><label className="block"><span className="eyebrow mb-2 block text-muted-foreground">Max matches / input</span><select value={limit} onChange={(event) => setLimit(event.target.value)} data-testid="select-batch-limit" className="h-10 w-full border border-input bg-background px-3 font-data text-xs outline-none focus:border-accent"><option value="3">3</option><option value="5">5</option><option value="10">10</option></select></label><button type="submit" disabled={screenMutation.isPending || !csv.trim()} data-testid="button-run-batch" className="flex h-10 items-center justify-center gap-2 bg-primary px-5 text-xs font-bold text-primary-foreground transition-colors hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-45"><Play size={13} /> {screenMutation.isPending ? 'Screening…' : 'Run screening'}</button></div>
-        <div className="mt-5 border-t hairline pt-4 text-[10px] leading-relaxed text-muted-foreground">CSV is parsed by the source service. Ledgerline does not infer identity from proximity; review each rationale before reporting.</div>
+        <div className="mt-5 border-t hairline pt-4 text-[10px] leading-relaxed text-muted-foreground">CSV is parsed by the source service. Cited Ledger does not infer identity from proximity; review each rationale before reporting.</div>
         {!!inputs.length && <div className="mt-4 font-data text-[10px] text-muted-foreground" data-testid="text-batch-input-count">{inputs.length} input {inputs.length === 1 ? 'row' : 'rows'} ready</div>}
       </form>
       <section className="min-w-0" data-testid="section-batch-results">
@@ -413,7 +413,7 @@ function PathsPage() {
   const routeOptions = fromEndpoints.flatMap((fromEndpoint) => toEndpoints.map((toEndpoint) => ({ from: fromEndpoint, to: toEndpoint }))).slice(0, 25);
   return <div className="fade-in"><PageIntro eyebrow="Graph tools / shortest route" title="Trace a connection"><div className="max-w-xs text-right text-xs leading-relaxed text-muted-foreground">Move between two known entities through relationships backed by a source citation.</div></PageIntro>
     <form onSubmit={submit} className="mb-5 grid gap-3 border border-border bg-card p-5 sm:grid-cols-[1fr_auto_1fr_auto] sm:items-end sm:p-6" data-testid="form-path-search"><PathInput label="From endpoint(s)" value={from} setValue={setFrom} testId="input-path-from" placeholder="ID or name; separate many with commas" /><div className="hidden pb-3 text-accent sm:block"><ArrowRight size={18} /></div><PathInput label="To endpoint(s)" value={to} setValue={setTo} testId="input-path-to" placeholder="ID or name; separate many with commas" /><button type="submit" data-testid="button-find-path" className="flex h-11 items-center justify-center gap-2 bg-primary px-5 text-xs font-bold text-primary-foreground transition-colors hover:bg-accent hover:text-accent-foreground"><GitBranch size={15} /> Find shortest path</button></form>
-     <div className="mb-10 border border-accent/25 bg-accent/5 px-4 py-3 text-[10px] leading-relaxed text-muted-foreground" data-testid="status-path-input-help"><span className="font-bold text-foreground">Fuzzy and one-to-many ready.</span> Enter names or IDs. Comma-separated endpoints become selectable endpoint pairs; Ledgerline checks the selected pair and shows only the cited route.</div>
+     <div className="mb-10 border border-accent/25 bg-accent/5 px-4 py-3 text-[10px] leading-relaxed text-muted-foreground" data-testid="status-path-input-help"><span className="font-bold text-foreground">Fuzzy and one-to-many ready.</span> Enter names or IDs. Comma-separated endpoints become selectable endpoint pairs; Cited Ledger checks the selected pair and shows only the cited route.</div>
     {!submitted && <div className="scan-grid flex min-h-[270px] flex-col items-center justify-center border border-dashed border-border bg-card/40 px-6 text-center" data-testid="status-path-empty"><GitBranch size={26} className="mb-4 text-accent" /><h2 className="font-display text-2xl">Follow the documented chain</h2><p className="mt-2 max-w-md text-xs leading-relaxed text-muted-foreground">Enter two entity IDs to test whether the source graph connects them. The result shows only the shortest cited route.</p></div>}
     {submitted && <div className="mb-5 flex flex-wrap items-center gap-3 border border-primary/30 bg-primary/5 p-4" data-testid="status-selected-path"><span className="eyebrow text-primary">Selected route</span>{routeOptions.length > 1 && <select value={`${selectedRoute?.from}|||${selectedRoute?.to}`} onChange={(event) => { const [nextFrom, nextTo] = event.target.value.split('|||'); setSelectedRoute({ from: nextFrom, to: nextTo }); }} data-testid="select-path-route" className="h-8 max-w-full border border-primary/25 bg-card px-2 font-data text-[10px] outline-none focus:border-primary">{routeOptions.map((routeOption) => <option key={`${routeOption.from}|||${routeOption.to}`} value={`${routeOption.from}|||${routeOption.to}`}>{routeOption.from} → {routeOption.to}</option>)}</select>}{routeOptions.length === 1 && <div className="flex flex-wrap items-center gap-2 font-data text-[10px]"><span className="border border-primary/25 bg-card px-2 py-1">{selectedRoute?.from}</span><ArrowRight size={13} className="text-primary" /><span className="border border-primary/25 bg-card px-2 py-1">{selectedRoute?.to}</span></div>}<span className="text-[10px] text-muted-foreground">{routeOptions.length > 1 ? `${routeOptions.length} endpoint pair${routeOptions.length === 1 ? '' : 's'} available` : 'The source service is checking this pair'}</span></div>}
     {submitted && pathQuery.isLoading && <LoadingBlock rows={4} />}

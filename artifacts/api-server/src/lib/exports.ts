@@ -57,7 +57,7 @@ export function exportEntityData(entity: any, format: string) {
   ]);
   if (format === "csv") return { body: csv, contentType: "text/csv", extension: "csv" };
   return {
-    body: toPdf(`Ledgerline dossier: ${entity.name}`, [
+    body: toPdf(`Cited Ledger dossier: ${entity.name}`, [
       `ID: ${entity.id}`,
       `Schema: ${entity.schemaType}`,
       `Datasets: ${entity.datasets.join(", ")}`,
@@ -81,5 +81,5 @@ export function exportNetworkData(graph: any, format: string) {
   const rows = graph.edges.map((edge: any) => [edge.source, edge.target, edge.relationshipType, edge.confidence, edge.citation?.publisher, edge.citation?.title, edge.citation?.url]);
   const csv = toCsv(["source_id", "target_id", "relationship", "confidence", "publisher", "citation_title", "citation_url"], rows);
   if (format === "csv") return { body: csv, contentType: "text/csv", extension: "csv" };
-  return { body: toPdf("Ledgerline relationship network", [`Exported: ${generatedAt}`, `Nodes: ${graph.nodes.length}`, `Edges: ${graph.edges.length}`, "", ...graph.edges.map((edge: any) => `${edge.source} -> ${edge.target} | ${edge.relationshipType} | ${edge.confidence} | ${edge.citation?.url}`)]), contentType: "application/pdf", extension: "pdf" };
+  return { body: toPdf("Cited Ledger relationship network", [`Exported: ${generatedAt}`, `Nodes: ${graph.nodes.length}`, `Edges: ${graph.edges.length}`, "", ...graph.edges.map((edge: any) => `${edge.source} -> ${edge.target} | ${edge.relationshipType} | ${edge.confidence} | ${edge.citation?.url}`)]), contentType: "application/pdf", extension: "pdf" };
 }

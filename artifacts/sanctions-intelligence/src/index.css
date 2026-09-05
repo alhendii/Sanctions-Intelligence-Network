@@ -79,13 +79,13 @@
   --elevate-1: rgba(0, 0, 0, 0.03);
   --elevate-2: rgba(0, 0, 0, 0.08);
 
-  --background: 222 20% 96%;
+  --background: 42 24% 97%;
 
   --foreground: 222 27% 14%;
 
-  --border: 220 16% 86%;
+  --border: 36 16% 85%;
 
-  --card: 0 0% 100%;
+  --card: 42 36% 100%;
 
   --card-foreground: 222 27% 14%;
 
@@ -121,7 +121,7 @@
 
   --secondary-foreground: 222 27% 14%;
 
-  --muted: 220 18% 91%;
+  --muted: 40 18% 92%;
 
   --muted-foreground: 220 12% 46%;
 
@@ -319,8 +319,8 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
     min-width: 320px;
-    background-image: linear-gradient(115deg, rgba(31, 44, 64, .025) 1px, transparent 1px), linear-gradient(25deg, rgba(31, 44, 64, .018) 1px, transparent 1px);
-    background-size: 46px 46px, 73px 73px;
+    background-image: radial-gradient(circle at 85% 0%, rgba(29, 110, 104, .075), transparent 28rem), linear-gradient(115deg, rgba(31, 44, 64, .025) 1px, transparent 1px), linear-gradient(25deg, rgba(31, 44, 64, .018) 1px, transparent 1px);
+    background-size: auto, 46px 46px, 73px 73px;
   }
 }
 
@@ -330,6 +330,14 @@
   .eyebrow { font-family: var(--app-font-mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; }
   .hairline { border-color: hsl(var(--border) / .72); }
   .scan-grid { background-image: linear-gradient(hsl(var(--border) / .42) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border) / .42) 1px, transparent 1px); background-size: 24px 24px; }
+  .ledger-brand-mark { border-radius: 10px; box-shadow: 0 8px 18px rgba(0, 0, 0, .18); }
+  .ledger-topbar { box-shadow: 0 1px 0 hsl(var(--border) / .35), 0 10px 30px rgba(31, 44, 64, .025); }
+  .ledger-page-intro { position: relative; overflow: hidden; }
+  .ledger-page-intro::after { content: ''; position: absolute; right: 0; bottom: -1px; width: 7rem; height: 2px; background: hsl(var(--accent)); }
+  .ledger-surface { border-radius: 14px; box-shadow: 0 14px 34px rgba(31, 44, 64, .055); }
+  .ledger-stat { transition: background-color .2s ease, transform .2s ease; }
+  .ledger-stat:hover { background-color: hsl(var(--accent) / .045); transform: translateY(-2px); }
+  .ledger-callout { border-radius: 14px; box-shadow: 0 12px 28px hsl(var(--accent) / .08); }
   .fade-in { animation: fade-in .35s ease both; }
   .rise-in { animation: rise-in .45s cubic-bezier(.22,1,.36,1) both; }
   .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }

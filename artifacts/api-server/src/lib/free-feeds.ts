@@ -124,7 +124,7 @@ export const freeFeedCatalog: FeedSource[] = [
     mode: "discovery",
     status: "setup_required",
     category: "pep",
-    description: "Politically exposed person datasets are a separate research category; Ledgerline does not silently merge PEP status with sanctions status.",
+    description: "Politically exposed person datasets are a separate research category; Cited Ledger does not silently merge PEP status with sanctions status.",
   },
   {
     id: "adverse_media_context",

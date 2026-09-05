@@ -232,7 +232,7 @@ router.get("/entities/:id/export", async (req, res): Promise<void> => {
   }
   try {
     const exported = exportEntityData(await getSanctionsEntity(params.data.id), format);
-    res.type(exported.contentType).setHeader("Content-Disposition", `attachment; filename="ledgerline-entity.${exported.extension}"`).send(exported.body);
+    res.type(exported.contentType).setHeader("Content-Disposition", `attachment; filename="cited-ledger-entity.${exported.extension}"`).send(exported.body);
   } catch (error) {
     handleError(req, res, error);
   }
@@ -248,7 +248,7 @@ router.get("/entities/:id/network/export", async (req, res): Promise<void> => {
   }
   try {
     const exported = exportNetworkData(await getSanctionsNetwork(params.data.id, depth), format);
-    res.type(exported.contentType).setHeader("Content-Disposition", `attachment; filename="ledgerline-network.${exported.extension}"`).send(exported.body);
+    res.type(exported.contentType).setHeader("Content-Disposition", `attachment; filename="cited-ledger-network.${exported.extension}"`).send(exported.body);
   } catch (error) {
     handleError(req, res, error);
   }
@@ -263,15 +263,15 @@ router.post("/batch-screen/export", async (req, res): Promise<void> => {
   }
   const generatedAt = new Date().toISOString();
   if (format === "json") {
-    res.type("application/json").setHeader("Content-Disposition", 'attachment; filename="ledgerline-batch.json"').send(JSON.stringify({ generatedAt, items }, null, 2));
+    res.type("application/json").setHeader("Content-Disposition", 'attachment; filename="cited-ledger-batch.json"').send(JSON.stringify({ generatedAt, items }, null, 2));
     return;
   }
   if (format === "csv") {
     const rows = items.flatMap((item: any) => item.matches?.length ? item.matches.map((match: any) => [item.input, item.status, match.name, match.id, match.score, match.datasets?.join(" | "), match.sourceUrl]) : [[item.input, item.status, "", "", "", "", ""]]);
-    res.type("text/csv").setHeader("Content-Disposition", 'attachment; filename="ledgerline-batch.csv"').send(toCsv(["input", "status", "match_name", "match_id", "score", "datasets", "source_url"], rows));
+    res.type("text/csv").setHeader("Content-Disposition", 'attachment; filename="cited-ledger-batch.csv"').send(toCsv(["input", "status", "match_name", "match_id", "score", "datasets", "source_url"], rows));
     return;
   }
-  res.type("application/pdf").setHeader("Content-Disposition", 'attachment; filename="ledgerline-batch.pdf"').send(toPdf("Ledgerline batch screening", [`Generated: ${generatedAt}`, ...items.flatMap((item: any) => [`${item.input} — ${item.status}`, ...(item.matches ?? []).map((match: any) => `  ${match.name} | ${match.score} | ${match.sourceUrl}`)])]));
+  res.type("application/pdf").setHeader("Content-Disposition", 'attachment; filename="cited-ledger-batch.pdf"').send(toPdf("Cited Ledger batch screening", [`Generated: ${generatedAt}`, ...items.flatMap((item: any) => [`${item.input} — ${item.status}`, ...(item.matches ?? []).map((match: any) => `  ${match.name} | ${match.score} | ${match.sourceUrl}`)])]));
 });
 
 router.get("/watchlists", async (req, res): Promise<void> => {
