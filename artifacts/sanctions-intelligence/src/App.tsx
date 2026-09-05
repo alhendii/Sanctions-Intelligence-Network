@@ -52,14 +52,14 @@ function AppShell({ children }: { children: ReactNode }) {
         'fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col bg-sidebar text-sidebar-foreground transition-transform duration-300 lg:translate-x-0',
         mobileOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
-        <div className="flex h-[84px] items-center justify-between border-b border-sidebar-border px-6">
+        <div className="ledger-brand-zone flex h-[112px] items-center justify-between border-b border-sidebar-border px-6">
           <Link href="/" data-testid="link-brand" className="ledger-brand flex items-center gap-4 text-sidebar-accent-foreground">
             <span className="ledger-brand-mark grid h-11 w-11 place-items-center bg-primary text-primary-foreground"><CitedLedgerMark /></span>
             <span className="font-display text-[28px] font-semibold leading-none tracking-[-.045em]">Cited Ledger</span>
           </Link>
           <button type="button" onClick={() => setMobileOpen(false)} aria-label="Close navigation" data-testid="button-close-navigation" className="rounded-md p-1 text-sidebar-foreground/60 hover:text-sidebar-accent-foreground lg:hidden"><X size={18} /></button>
         </div>
-        <div className="border-b border-sidebar-border px-5 py-5">
+        <div className="ledger-workspace-block border-b border-sidebar-border px-6 py-6">
           <div className="eyebrow text-sidebar-foreground/45">Evidence workspace</div>
             <div className="mt-2 flex items-center gap-2 text-[12px] text-sidebar-foreground/75"><span className="pulse-dot h-1.5 w-1.5 rounded-full bg-primary" /> Public sanctions sources <span className="font-data text-[10px] text-sidebar-foreground/40">SOURCE</span></div>
         </div>

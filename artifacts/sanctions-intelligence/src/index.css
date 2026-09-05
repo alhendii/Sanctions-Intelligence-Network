@@ -331,6 +331,8 @@
   .hairline { border-color: hsl(var(--border) / .72); }
   .scan-grid { background-image: linear-gradient(hsl(var(--border) / .42) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border) / .42) 1px, transparent 1px); background-size: 24px 24px; }
   .ledger-brand-mark { border: 1px solid hsl(var(--sidebar-primary) / .65); border-radius: 12px; box-shadow: 0 10px 24px rgba(0, 0, 0, .24), inset 0 0 0 1px rgba(255, 255, 255, .05); }
+  .ledger-brand-zone { background: linear-gradient(145deg, hsl(var(--sidebar) / .98), hsl(var(--sidebar-accent) / .55)); }
+  .ledger-workspace-block { background: linear-gradient(180deg, hsl(var(--sidebar-accent) / .26), transparent); }
   .ledger-topbar { box-shadow: 0 1px 0 hsl(var(--border) / .35), 0 10px 30px rgba(31, 44, 64, .025); }
   .ledger-page-intro { position: relative; overflow: hidden; }
   .ledger-page-intro::after { content: ''; position: absolute; right: 0; bottom: -1px; width: 7rem; height: 2px; background: hsl(var(--accent)); }
