@@ -330,7 +330,7 @@
   .eyebrow { font-family: var(--app-font-mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; }
   .hairline { border-color: hsl(var(--border) / .72); }
   .scan-grid { background-image: linear-gradient(hsl(var(--border) / .42) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--border) / .42) 1px, transparent 1px); background-size: 24px 24px; }
-  .ledger-brand-mark { border: 1px solid hsl(var(--sidebar-primary) / .5); border-radius: 10px; box-shadow: 0 8px 18px rgba(0, 0, 0, .18); }
+  .ledger-brand-mark { border: 1px solid hsl(var(--sidebar-primary) / .65); border-radius: 12px; box-shadow: 0 10px 24px rgba(0, 0, 0, .24), inset 0 0 0 1px rgba(255, 255, 255, .05); }
   .ledger-topbar { box-shadow: 0 1px 0 hsl(var(--border) / .35), 0 10px 30px rgba(31, 44, 64, .025); }
   .ledger-page-intro { position: relative; overflow: hidden; }
   .ledger-page-intro::after { content: ''; position: absolute; right: 0; bottom: -1px; width: 7rem; height: 2px; background: hsl(var(--accent)); }
