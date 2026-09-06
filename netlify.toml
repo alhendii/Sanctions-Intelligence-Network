@@ -1,0 +1,12 @@
+[build]
+  command = "pnpm --filter @workspace/sanctions-intelligence run build"
+  publish = "artifacts/sanctions-intelligence/dist/public"
+
+[build.environment]
+  BASE_PATH = "/"
+  PORT = "4173"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

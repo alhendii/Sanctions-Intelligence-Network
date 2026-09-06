@@ -1,1 +1,2 @@
 - [OpenSanctions source and validation](opensanctions-and-codegen.md) — server-side ApiKey auth is required; preserve truthful setup state and the current Zod 3 codegen workaround.
+- [Netlify static builds](netlify-static-builds.md) — Vite deployment builds need safe PORT/BASE_PATH defaults, the real dist/public publish path, and an SPA fallback.
