@@ -71,10 +71,30 @@ pnpm --filter @workspace/sanctions-intelligence run dev
 
 In Replit, use the configured **API Server** and **web** workflows so the preview proxy and `PORT` environment variable are handled correctly.
 
+### Netlify frontend and separate API
+
+The Netlify site is static, so it cannot serve the Express routes itself. Publish
+the **API Server** artifact separately, then set `VITE_API_BASE_URL` in the
+Netlify site's production environment to that API's origin (without a trailing
+`/api`, for example `https://api.example.com`). The generated browser client
+will keep calling `/api/*` in local/Replit previews, and will prepend the
+configured production origin in the Netlify bundle.
+
+Only `VITE_*` values are exposed to the browser. Keep `DATABASE_URL`,
+`SESSION_SECRET`, and `OPEN_SANCTIONS_API_KEY` configured on the API deployment
+only; never add them to Netlify or rename them with a `VITE_` prefix.
+
 The source registry exposes a controlled official-feed refresh endpoint:
 
 ```bash
 curl -X POST http://localhost:8080/api/sources/sync
+```
+
+Run the same health, search, and dossier smoke check against a local or
+published API by setting `API_BASE_URL`:
+
+```bash
+API_BASE_URL=https://api.example.com pnpm smoke:api
 ```
 
 The exact local port may be supplied by the active workflow.

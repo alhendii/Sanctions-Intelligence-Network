@@ -11,11 +11,33 @@ export type AuthTokenGetter = () => Promise<string | null> | string | null;
 const NO_BODY_STATUS = new Set([204, 205, 304]);
 const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
 
+function normalizeBaseUrl(url: string | null): string | null {
+  if (!url) return null;
+
+  const normalized = url.trim().replace(/\/+$/, "");
+  if (!normalized) return null;
+
+  // Generated API paths already begin with /api. Accepting an origin with a
+  // trailing /api as well keeps the Netlify setting hard to misconfigure.
+  return normalized.replace(/\/api$/, "");
+}
+
+function getConfiguredBaseUrl(): string | null {
+  // Vite replaces import.meta.env values at build time. The optional
+  // declaration in env.d.ts keeps this shared client usable by non-Vite
+  // consumers, which continue to use relative URLs.
+  if (typeof import.meta !== "undefined" && import.meta.env) {
+    return normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL ?? null);
+  }
+
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Module-level configuration
 // ---------------------------------------------------------------------------
 
-let _baseUrl: string | null = null;
+let _baseUrl: string | null = getConfiguredBaseUrl();
 let _authTokenGetter: AuthTokenGetter | null = null;
 
 /**
@@ -26,7 +48,7 @@ let _authTokenGetter: AuthTokenGetter | null = null;
  * Pass `null` to clear the base URL.
  */
 export function setBaseUrl(url: string | null): void {
-  _baseUrl = url ? url.replace(/\/+$/, "") : null;
+  _baseUrl = normalizeBaseUrl(url);
 }
 
 /**

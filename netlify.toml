@@ -5,6 +5,9 @@
 [build.environment]
   BASE_PATH = "/"
   PORT = "4173"
+  # Set VITE_API_BASE_URL in Netlify's environment settings to the origin of
+  # the separately published API server (for example, https://api.example.com).
+  # Keep it unset locally so the Replit preview continues using /api.
 
 [[redirects]]
   from = "/*"
